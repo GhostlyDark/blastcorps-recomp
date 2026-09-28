@@ -1256,6 +1256,7 @@ extern f32 D_hd_code_8036C260[64];
 
 Gfx* func_hd_code_802742D8(Gfx* gfx, u8 arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, f32 arg7, u8 arg8);
 // TODO: This must fix the graphical glitch when rendering the vehicle graphics. This compiles to semantically different MIPS
+#if 0
 RECOMP_PATCH Gfx* func_hd_code_80272ED8(Gfx* arg0, u8 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5, f32 arg6) {
     s32 sp104;
     Gfx* entry;
@@ -1365,3 +1366,4 @@ RECOMP_PATCH Gfx* func_hd_code_80272ED8(Gfx* arg0, u8 arg1, s16 arg2, s16 arg3, 
 
     return entry;
 }
+#endif
