@@ -372,7 +372,7 @@ RECOMP_PATCH void func_hd_code_8024FC2C(Gfx** arg0, u8 arg1) {
 
             // @recomp Tag the transform.
             gEXMatrixGroupSimpleNormal(entry++, TAG_VEHICLE(D_hd_code_80364460, arg1), G_EX_PUSH,
-                                       G_MTX_MODELVIEW, G_EX_EDIT_ALLOW);
+                                       G_MTX_MODELVIEW, G_EX_EDIT_NONE);
 
             gSPSegment(entry++, 0x06, osVirtualToPhysical((void*) D_hd_code_80364460[sp60].unk0));
             if (((g_currentGameState & 0x1801)) &&
@@ -504,12 +504,12 @@ RECOMP_PATCH void func_hd_code_80282C80(Gfx** gfx, struct Model1* arg1, s32 arg2
         guTranslateF(spA8, -150.0f, -230.0f, -800.0f);
         guMtxCatF(spE8, spA8, spE8);
         guMtxF2L(spE8, (Mtx*) arg1->unk1580);
+
         // @recomp Tag the transform.
-        gEXMatrixGroupDecomposedNormal(entry++, TAG_MISSILE_ARROW, G_EX_PUSH, G_MTX_PROJECTION, G_EX_EDIT_ALLOW);
+        gEXMatrixGroupDecomposedNormal(entry++, TAG_MISSILE_ARROW, G_EX_PUSH, G_MTX_PROJECTION, G_EX_EDIT_NONE);
 
         gSPMatrix(entry++, (u32) &D_2000000.projection, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
         gSPPerspNormalize(entry++, D_hd_code_8035807C);
-
 
         gSPMatrix(entry++, D_2000000.unk1580, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPClearGeometryMode(entry++, G_ZBUFFER | G_TEXTURE_ENABLE | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING |
@@ -517,6 +517,9 @@ RECOMP_PATCH void func_hd_code_80282C80(Gfx** gfx, struct Model1* arg1, s32 arg2
         gSPSetGeometryMode(entry++, G_SHADE | G_CULL_FRONT | G_LIGHTING | G_TEXTURE_GEN | G_SHADING_SMOOTH);
         gDPPipeSync(entry++);
         gDPSetCycleType(entry++, G_CYC_1CYCLE);
+
+        // @recomp Tag the transform.
+        gEXMatrixGroupDecomposedNormal(entry++, TAG_MISSILE_ARROW + 1, G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
 
         if (D_hd_code_80367BD6 == 0xFF) {
             gDPSetRenderMode(entry++, G_RM_RA_OPA_SURF, G_RM_RA_OPA_SURF2);
@@ -541,6 +544,9 @@ RECOMP_PATCH void func_hd_code_80282C80(Gfx** gfx, struct Model1* arg1, s32 arg2
         gSP1Triangle(entry++, 9, 6, 8, 0);
         gSP1Triangle(entry++, 7, 9, 8, 0);
         gDPPipeSync(entry++);
+
+        // @recomp Pop the transform id.
+        gEXPopMatrixGroup(entry++, G_MTX_MODELVIEW);
 
         // @recomp Pop the transform id.
         gEXPopMatrixGroup(entry++, G_MTX_PROJECTION);
@@ -614,7 +620,7 @@ RECOMP_PATCH void func_hd_code_8025E67C(Gfx** arg0, struct Model1* arg1, u8 arg2
                         D_hd_code_80366BC4.unk1 = 1U;
                     }
 
-                    gEXMatrixGroupSkipAllAspect(entry++, TAG_FADE_SCREEN, G_EX_PUSH, G_MTX_PROJECTION, G_EX_EDIT_ALLOW,
+                    gEXMatrixGroupSkipAllAspect(entry++, TAG_FADE_SCREEN, G_EX_PUSH, G_MTX_PROJECTION, G_EX_EDIT_NONE,
                                                 G_EX_ASPECT_STRETCH); // @recomp: force stretching
                     
                     gSPMatrix(entry++, &D_2000000.mtx1, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
@@ -690,9 +696,8 @@ RECOMP_PATCH Gfx* func_hd_code_80271FD0(Gfx* arg0, struct Model1* arg1, u16 arg2
     f32 sp5C;
 
     // @recomp: get aspect ratio
-    f32 ratio = recomp_get_target_aspect_ratio(4.0f/3.0f);
+    f32 ratio = recomp_get_target_aspect_ratio(4.0f / 3.0f);
     f32 offset = ((ratio * 960.0f) - 1280.0f) / 1280.0f;
-
 
     if (D_hd_code_8036BFC4 == 0) {
         *arg5 = 0;
@@ -754,13 +759,21 @@ RECOMP_PATCH Gfx* func_hd_code_80271FD0(Gfx* arg0, struct Model1* arg1, u16 arg2
     }
 
     sp68 = (D_hd_code_8036BFC8 + 16.0f) / (f32) (1 << sp70->unk8);
-    sp60 = (f32) (319.0 / (f64) (f32) (1 << sp70->unk8));
+    sp60 = (f32) (320.0 / (f64) (f32) (1 << sp70->unk8));
+
+    // @recomp Tag the transform.
+    // Interpolating texture coordinates
+    gEXMatrixGroup(entry++, TAG_SKY_QUAD, G_EX_INTERPOLATE_SIMPLE, G_EX_PUSH, G_MTX_MODELVIEW,
+                   G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE,
+                   G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE,
+                   G_EX_COMPONENT_SKIP, G_EX_ORDER_LINEAR, G_EX_EDIT_ALLOW, G_EX_ASPECT_STRETCH,
+                   G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_SKIP);
 
     // @recomp: adapt texture size in width
-    D_hd_code_802FA820[D_hd_code_8036BFC5][0].v.tc[0] = (sp68 - offset * 319) * 32.0;
-    D_hd_code_802FA820[D_hd_code_8036BFC5][1].v.tc[0] = (sp68 + sp60 + offset * 319) * 32.0;
-    D_hd_code_802FA820[D_hd_code_8036BFC5][2].v.tc[0] = (sp68 - offset * 319) * 32.0;
-    D_hd_code_802FA820[D_hd_code_8036BFC5][3].v.tc[0] = (sp68 + sp60 + offset * 319) * 32.0;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][0].v.tc[0] = (sp68 - offset * 320) * 32.0;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][1].v.tc[0] = (sp68 + sp60 + offset * 320) * 32.0;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][2].v.tc[0] = (sp68 - offset * 320) * 32.0;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][3].v.tc[0] = (sp68 + sp60 + offset * 320) * 32.0;
 
     sp64 = ((D_hd_code_8036BFCC - D_hd_code_8036BFC0) - D_hd_code_8036BFD0) / (f32) (1 << sp70->unk9);
     sp5C = (f32) (((f64) D_hd_code_8036BFCC - 1.0) / (f64) (f32) (1 << sp70->unk9));
@@ -775,5 +788,9 @@ RECOMP_PATCH Gfx* func_hd_code_80271FD0(Gfx* arg0, struct Model1* arg1, u16 arg2
     gSP1Triangle(entry++, 1, 2, 3, 0);
 
     D_hd_code_8036BFC5 ^= 1;
+
+    // @recomp Pop the transform id.
+    gEXPopMatrixGroup(entry++, G_MTX_MODELVIEW);
+
     return entry;
 }
