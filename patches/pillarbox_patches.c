@@ -19,10 +19,11 @@ float identity_matrix[4][4] = {
 };
 
 // TODO: put them into the decomp, then use it here
+#define GS_INTRO_TVS 0x1ULL // shows all characters
 #define GS_PRELEVEL_STATS 0x80ULL
 #define GS_POSTLEVEL_STATS 0x8000000ULL
 
-#define NEEDS_PILLARBOX (GS_PRELEVEL_STATS | GS_POSTLEVEL_STATS)
+#define NEEDS_PILLARBOX (GS_PRELEVEL_STATS | GS_POSTLEVEL_STATS | GS_INTRO_TVS)
 
 void pillarbox_draw(Gfx** gfx) {
     if (!(g_currentGameState & NEEDS_PILLARBOX)) {
