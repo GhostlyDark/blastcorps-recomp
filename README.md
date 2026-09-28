@@ -112,9 +112,3 @@ Building is not required to play this project, as prebuilt binaries (which do no
 * [N64ModernRuntime](https://github.com/N64Recomp/N64ModernRuntime) for replacing the original N64 runtime libraries and providing mod support
 * [RecompFrontend](https://github.com/N64Recomp/RecompFrontend) for menus and input handling
 * [BlastCorps Decompilation](https://github.com/SlaveOfIDO/blastcorps) for headers and some function definitions, used for making patches or some enhancements
-
-# Special Thanks:
-* [Wiseguy](https://github.com/Mr-Wiseguy) and [DarioSamo](https://github.com/DarioSamo): for creating [N64Recomp](https://github.com/N64Recomp) and [RT64](https://github.com/rt64/rt64), assisting with fantastic technical support along the way.
-* [queueRAM](https://gitlab.com/queueRAM) : for assisting with the game disassembly and decompression tooling.
-* [TheBoy181](https://github.com/TheBoy181) : for assisting with various widescreen enhancements such as fade transitions, bike selection screen borders and background, Native 60 FPS, as well as draw and fog distance PJ64 cheat codes that were the foundations of some of the project's assembly patches.
-* [thecozies](https://github.com/thecozies) : for their work on the frontend and multiplayer UI.
