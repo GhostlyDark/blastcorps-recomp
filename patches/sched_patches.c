@@ -278,9 +278,6 @@ RECOMP_PATCH void gfxWaitForTask(u32 arg0) {
 
 RECOMP_PATCH void gfxSubmitTask(Gfx* displayList, s32 displayListEntries, u8 arg2, s32 arg3, s32 gfxTaskId, s32 arg5) {
     // @recomp: return early on line call draws. currently not supported
-    if (arg2 == 0) {
-        return;
-    }
 
     // @recomp: if displayList contains special marker word, use extended dl instead
     if (displayList->words.w0 == 0xCAFEBABE) {
