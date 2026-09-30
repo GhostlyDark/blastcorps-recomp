@@ -1,6 +1,7 @@
 #include "patches.h"
 #include "misc_funcs.h"
 #include "gfx.h"
+#include "config.h"
 #include <PR/sched.h>
 #include <hd_code/macros.h>
 #include <hd_code/functions.h>
@@ -76,7 +77,11 @@ RECOMP_PATCH void __scRetraceDone(OSSched* scheduler) {
         if (D_hd_code_802E8BD0 == 0) {
             scheduler->unk803156C0++;
         }
+        #if EXPERIMENTAL_SCHEDULER_PATCH
+        sLastRetraceTime += OS_COUNTS_PER_SEC / retraceTargetFps;
+        #else
         sLastRetraceTime = osGetCount();
+        #endif
     }
 
     D_hd_code_8036BF38 = osGetTime();
@@ -126,6 +131,9 @@ static s32 sPendingDpDone = 0;
 static s32 sAudioFrame = 0;
 
 RECOMP_PATCH void __scMain(void* params) {
+#if EXPERIMENTAL_SCHEDULER_PATCH
+    sLastRetraceTime = osGetCount();
+#endif
     OSMesg msg;
     OSSched* scheduler;
     OSScClient* client;
@@ -211,38 +219,55 @@ extern u64 D_hd_code_80367750;
 extern u64 D_hd_code_8036AFB0;
 
 #if 1
+
 static u32 sLastMainGfxWaited = 0;
+static void gfxThrottle() {
+    if (!sGfxTaskPending) {
+        // Only apply throttling if we wait for the main task
+        return;
+    }
+
+    if (g_currentGameState & 0xC9FD0FE79BFF80B0) {
+        // targetFps = 60;
+        //  TODO: Is this the right approach?
+        return;
+    }
+    // @recomp: block here until at least 1/30s has passed since the last completed
+    // gfx task, capping the render rate at 30fps on modern hardware. This is not done
+    // when the nintendo or rare logo is rendered. This renders much faster on the N64 than the game
+
+#if EXPERIMENTAL_SCHEDULER_PATCH
+    u32 targetFps = 30;
+    u32 nowTime = osGetCount();
+    u32 firstTime = nowTime;
+    s32 elapsedTime = nowTime - sLastMainGfxWaited;
+
+    while (elapsedTime < (OS_COUNTS_PER_SEC / targetFps)) {
+        yield_self();
+        nowTime = osGetCount();
+        elapsedTime = nowTime - sLastMainGfxWaited;
+    }
+    sLastMainGfxWaited = firstTime;
+#else
+    u32 targetFps = 35;
+
+    while ((u32)osGetCount() - (u32)sLastMainGfxWaited < (OS_COUNTS_PER_SEC / targetFps)) {
+        yield_self();
+    }
+    sLastMainGfxWaited = osGetCount();
+#endif
+    sGfxTaskPending = 0;
+}
+
 RECOMP_PATCH void gfxWaitForTask(u32 arg0) {
     u32 sp1C;
 
-    // rmonPrintf("g_currentGameState: %llx\n", g_currentGameState);
     do {
         osRecvMesg(&D_hd_code_803153D8, (OSMesg) &sp1C, 1);
         D_hd_code_8036E68C[sp1C >> 16] = 0;
         sp1C &= 0xFFFF;
-#if 1
-        // if (g_currentGameState == 0x10 || g_currentGameState == 0x20 || g_currentGameState ==  0x4000) {
-        if (g_currentGameState & 0xC9FD0FE79BFF80B0) {
-            // targetFps = 60;
-            //  TODO: Is this the right approach?
-            goto skip;
-        }
-        // @recomp: block here until at least 1/30s has passed since the last completed
-        // gfx task, capping the render rate at 30fps on modern hardware. This is not done
-        // when the nintendo or rare logo is rendered. This renders much faster on the N64 than the game
-        if (sGfxTaskPending) {
-            // Wait only for the main task.
-            u32 targetFps = 35;
 
-            while ((u32)osGetCount() - (u32)sLastMainGfxWaited < (OS_COUNTS_PER_SEC / targetFps)) {
-                yield_self();
-            }
-            sLastMainGfxWaited = osGetCount();
-            sGfxTaskPending = 0;
-        }
-#endif
-
-    skip:
+        gfxThrottle();
 
         if (sp1C != arg0) {
             rmonPrintf("Task %d received message %d\n", arg0, sp1C);
