@@ -1,12 +1,15 @@
 #include "patches.h"
 #include "misc_funcs.h"
 #include "gfx_tagging.h"
+#include "gfx.h"
 #include "pillarbox_patches.h"
 #include <PR/sched.h>
 #include <hd_code/macros.h>
 #include <hd_code/functions.h>
 #include <hd_code/variables.h>
 #include <hd_code/yoshi.h>
+
+Gfx sExtendedGfx[2][EXTENDED_DL_SIZE];
 
 #define VIRTUAL_TO_PHYSICAL(addr) ((uintptr_t) (addr) & 0x1FFFFFFF)
 extern void* D_hd_code_8035806C;
@@ -25,6 +28,22 @@ extern s16 D_hd_code_80364A4C;
 extern u8 D_hd_code_80364A4E;
 extern u8 D_hd_code_80364A86;
 extern u8 D_hd_code_80364AC1;
+extern u8 D_hd_code_8035805C;
+
+RECOMP_PATCH void func_hd_code_802559F8(Gfx* gfx, s32* length) {
+    Gfx* entry = gfx;
+
+    gDPFullSync(entry++);
+    gSPEndDisplayList(entry++);
+
+    // @recomp: calculate proper length
+    s32 extlen = (s32) ABS(((s32) entry - (s32) &sExtendedGfx[D_hd_code_8035805C]));
+    s32 intlen = (s32) ABS(((s32) entry - (s32) &D_hd_code_803156F8[D_hd_code_8035805C]) - 0x48B0);
+    *length = MIN(extlen, intlen) >> 3;
+    if (*length >= EXTENDED_DL_SIZE) {
+        rmonPrintf(ASSERT_MESSAGE, "*length<EXTENDED_DL_SIZE", "patches.c", 0x123);
+    }
+}
 
 // @recomp: Enable extended RT64 commands in hdGameFrame
 RECOMP_PATCH Gfx* func_hd_code_8024C414(struct Model1* arg0, s32* arg1) {
@@ -33,7 +52,9 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct Model1* arg0, s32* arg1) {
     u8 sp184[16];
     s32 sp180;
 
-    entry = &arg0->dp[0];
+    // @recomp: use extended dl
+    arg0->dp[0].words.w0 = (u32) 0xCAFEBABE;
+    entry = &sExtendedGfx[D_hd_code_8035805C][0];
 
     gEXEnable(entry++);             // @recomp
     gEXSetRefreshRate(entry++, 30); // @recomp
@@ -347,7 +368,8 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct Model1* arg0, s32* arg1) {
         }
     }
     func_hd_code_80259C24(&entry, arg0);
-    *arg1 = (s32) (((s32) entry - (s32) arg0) - 0x48B0) >> 3;
+    // @recomp: use extended dl
+    *arg1 = (s32) (((s32) entry - (s32) sExtendedGfx)) >> 3;
     return entry;
 }
 

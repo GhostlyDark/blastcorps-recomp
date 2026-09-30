@@ -1,5 +1,6 @@
 #include "patches.h"
 #include "misc_funcs.h"
+#include "gfx.h"
 #include <PR/sched.h>
 #include <hd_code/macros.h>
 #include <hd_code/functions.h>
@@ -255,6 +256,14 @@ RECOMP_PATCH void gfxSubmitTask(Gfx* displayList, s32 displayListEntries, u8 arg
     if (arg2 == 0) {
         return;
     }
+
+    // @recomp: if displayList contains special marker word, use extended dl instead
+    if (displayList->words.w0 == 0xCAFEBABE) {
+        displayList->words.w0 = 0x0;
+
+        displayList = sExtendedGfx;
+    }
+        
 
     OSScTask* gfxTask;
     s32 displayListSize;
