@@ -1270,122 +1270,103 @@ RECOMP_PATCH void func_hd_code_80288DF0(Gfx** gfx, u8 arg1) {
     *gfx = entry;
 }
 
-
-extern u8 D_hd_code_8036BFE0[64][2];
-extern u8 D_hd_code_8036C1E0[64];
-extern u8 D_hd_code_8036C220[64];
-extern f32 D_hd_code_8036C260[64];
-
-Gfx* func_hd_code_802742D8(Gfx* gfx, u8 arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, f32 arg7, u8 arg8);
-// TODO: This must fix the graphical glitch when rendering the vehicle graphics. This compiles to semantically different MIPS
 #if 0
-RECOMP_PATCH Gfx* func_hd_code_80272ED8(Gfx* arg0, u8 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5, f32 arg6) {
-    s32 sp104;
-    Gfx* entry;
-    u8 spFF;
-    s32 spF8;
-    s32 spF4;
-    s32 spF0;
-    s32 spEC;
+struct S_8020BD30 {
+    f32 unk0;
+    s32 pad4;
+    f32 unk8;
+    f32 unkC;
+    struct S_8020BD30* unk10;
+    struct S_8020BD30* unk14;
+    u8 unk18;
+    u8 unk19;
+    u8 unk1A;
+    u8 pad1B;
+    f32 unk1C;
+    f32 unk20;
+    f32 unk24;
+    f32 unk28;
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+    f32 unk38;
+};
+typedef struct {
+    s32 unk0;
+    Gfx* unk4;
+} S_80218270;
 
-    entry = arg0;
+extern struct S_8020BD30 D_hd_front_end_8020BD30;
+extern struct S_8020BD30 D_hd_front_end_8020BDE4;
+extern f32 D_hd_front_end_80217B54;
+extern f32 D_hd_front_end_80217B58;
+extern f32 D_hd_front_end_80217B5C;
+extern Mtx D_hd_front_end_80217B70[7][4];
+extern S_80218270 D_hd_front_end_80218270[];
 
-    spFF = arg4;
-    arg6 *= D_hd_code_8036C260[arg1];
-    spEC = D_hd_code_8036C1E0[arg1];
-    if ((arg5 & 8) && ((u32) ((u32) D_hd_code_803156C4 % 20U) < 7U)) {
-        spFF = (u32)arg4 >> 1;
+Gfx* func_hd_front_end_801FE238(Gfx*, struct Model1*);
+Gfx* func_hd_front_end_801F4110(Gfx* gfx, struct Model1* arg1, struct S_8020BD30* arg2, f32 arg3);
+Gfx* func_hd_front_end_801F3964(Gfx* gfx, struct Model1* arg1, struct S_8020BD30* arg2, f32 arg3);
+#define TAG_PLANET(arg) (0x500 | (arg))
+
+RECOMP_PATCH void func_hd_front_end_801F4878(Gfx* gfx, struct Model1* arg1) {
+    Gfx* entry = gfx;
+    s32 sp68;
+    struct S_8020BD30* sp64;
+    struct S_8020BD30* sp60;
+    Mtx* sp5C;
+    f32 sp58;
+    f32 sp54;
+    f32 sp50;
+    f32 sp4C;
+
+    for (sp68 = 0; sp68 < 7; sp68++) {
+        sp64 = &D_hd_front_end_8020BD30;
+        sp60 = &sp64[((s32) &sp64[sp68] - (s32) sp64) / 0x3C];
+        sp5C = D_hd_front_end_80217B70[sp68];
+        sp58 = sp60->unk0 / D_hd_front_end_8020BDE4.unk0;
+        sp54 = sp60->unk20 - D_hd_front_end_80217B54;
+        sp50 = sp60->unk24 - D_hd_front_end_80217B58;
+        sp4C = sp60->unk28 - D_hd_front_end_80217B5C;
+        sp60->unk38 = sqrtf((sp54 * sp54) + (sp50 * sp50) + (sp4C * sp4C));
+        D_hd_front_end_80218270[((s32) sp60 - (s32) &D_hd_front_end_8020BD30) / 0x3C].unk0 =
+            ((s32) sp60 - (s32) &D_hd_front_end_8020BD30) / 0x3C;
+        D_hd_front_end_80218270[((s32) sp60 - (s32) &D_hd_front_end_8020BD30) / 0x3C].unk4 = entry;
+        // @recomp: enable extended commands for each planet. Each planet is put into the lookup table D_hd_front_end_80218270
+        gEXEnable(entry++);
+
+        // @recomp: tag planets one by one
+        gEXMatrixGroupDecomposedNormal(entry++, TAG_PLANET(sp68), G_EX_PUSH, G_MTX_PROJECTION, G_EX_EDIT_NONE);
+        gEXMatrixGroupDecomposedNormal(entry++, TAG_PLANET(sp68) | 0x10, G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
+
+        switch (sp68) {
+            case 3:
+
+                gSPMatrix(entry++, &arg1->projection, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+                gSPMatrix(entry++, &arg1->projection2, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+                gSPMatrix(entry++, &sp5C[D_hd_code_8035805C], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+                gSPMatrix(entry++, &sp5C[D_hd_code_8035805C + 2], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+                gSPMatrix(entry++, &arg1->unk1280, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+                entry = func_hd_front_end_801FE238(entry, arg1);
+                break;
+            case 6:
+                gSPMatrix(entry++, &arg1->mtx2, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+                gSPMatrix(entry++, &arg1->modelview, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+                entry = func_hd_front_end_801F4110(entry, arg1, sp60, sp58);
+                break;
+            default:
+                gSPMatrix(entry++, &arg1->mtx2, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+                gSPMatrix(entry++, &arg1->modelview, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+                entry = func_hd_front_end_801F3964(entry, arg1, sp60, sp58);
+                break;
+        }
+
+        // @recomp Pop the transform id.
+        gEXPopMatrixGroup(entry++, G_MTX_MODELVIEW);
+        gEXPopMatrixGroup(entry++, G_MTX_PROJECTION);
+
+        gSPEndDisplayList(entry++);
     }
-    gDPPipeSync(entry++);
-    if (D_hd_code_8036C220[arg1] & 4) {
-        if (arg6 > 1.0) {
-            gDPSetTextureFilter(entry++, G_TF_BILERP);
-        } else {
-            gDPSetTextureFilter(entry++, G_TF_POINT);
-        }
-    }
-
-    for (sp104 = 0; sp104 < (spEC - ((D_hd_code_8036C220[arg1] & 8)?1:0)); sp104++) {
-        if (D_hd_code_8036C220[arg1] & 2) {
-            gDPLoadTextureBlock(entry++, D_hd_code_8036BFE0[arg1][sp104], G_IM_FMT_RGBA,
-                                G_IM_SIZ_32b, spEC * 32, 32,
-                                0, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_MIRROR | G_TX_WRAP, G_TX_NOMASK, spEC + 4, G_TX_NOLOD, G_TX_NOLOD);
-        } else {
-            gDPLoadTextureBlock(entry++, D_hd_code_8036BFE0[arg1][sp104], G_IM_FMT_RGBA,
-                                G_IM_SIZ_16b, spEC * 32, 32,
-                                0, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_MIRROR | G_TX_WRAP, G_TX_NOMASK, spEC + 4, G_TX_NOLOD, G_TX_NOLOD);
-
-        }
-        if (arg5 != 0) {
-            gDPPipeSync(entry++);
-            if (arg5 & 4) {
-                gDPSetPrimColor(entry++, 0, 0, arg4, arg4, arg4, 0xFF);
-            } else {
-                gDPSetPrimColor(entry++, 0, 0, 0, 0, 0, arg4 / 2);
-            }
-            spF0 = (s32) ((f32) spEC + (2.0f * arg6));
-
-            gDPSetRenderMode(entry++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-            gDPSetCombineLERP(entry++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
-
-            if (D_hd_code_8036C220[arg1] & 4) {
-                entry = func_hd_code_802742D8(entry, arg1, arg2, arg3, sp104, spEC, spF0, arg6, 1);
-            } else {
-                spF8 = (arg2 - spF0) * 4;
-                spF4 = (s32) ((f32) ((arg3 + spF0) * 4) + ((f32) ((sp104 << 5) * 4) * arg6));
-
-                gSPTextureRectangle(entry++,
-                                    MAX(spF8, 0),
-                                    MAX(spF4, 0),
-                                    MAX((arg2 << 2) + ((spEC * 32 - spF0 - 1) << 2) * arg6, 0),
-                                    MAX(((arg3 + spF0) * 4) + ((((sp104 << 5)) + 32) << 2) * arg6, 0),
-                                    0,
-                                    -MIN(((s32) ((s32) (1024.0f / arg6) * spF8) >> 7), 0),
-                                    (((D_hd_code_8036C220[arg1] & 1)?((spEC << 5) << 5):(0)) - MIN((s32) ((s32) (1024.0f / arg6) * spF4) >> 7,0)),
-                                    (s32)(1024.0f / arg6),
-                                    (s32)(1024.0f / arg6));
-            }
-        }
-        if (!(arg5 & 6)) {
-            if (!(arg5 & 1)) {
-                spF0 = (s32) ((f32) spEC + (2.0f * arg6));
-            } else {
-                spF0 = 0;
-            }
-
-            gDPPipeSync(entry++);
-            gDPSetPrimColor(entry++, 0, 0, 0xFF, 0x00, 0x00, spFF);
-
-
-            if ((D_hd_code_8036C220[arg1] & 2) || (spFF != 0xFF) || (!(g_currentGameState & 0xC9FD0FE79BFF80B0))) {
-                gDPSetRenderMode(entry++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-            } else {
-                gDPSetRenderMode(entry++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
-            }
-            gDPSetCombineLERP(entry++, TEXEL0, 0, PRIMITIVE_ALPHA, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE_ALPHA, 0, TEXEL0, 0, PRIMITIVE, 0);
-
-            if (D_hd_code_8036C220[arg1] & 4) {
-                entry = func_hd_code_802742D8(entry, arg1, arg2, arg3, sp104, spEC, spF0, arg6, 0);
-            } else {
-                spF8 = (arg2 - spF0) * 4;
-                spF4 = (s32) ((f32) ((arg3 + spF0) * 4) + ((f32) ((sp104 << 5) * 4) * arg6));
-
-                gSPTextureRectangle(entry++,
-                                    MAX(spF8, 0),
-                                    MAX(spF4, 0),
-                                    MAX((f32) (arg2 * 4) + ((f32) ((((spEC << 5) - spF0) - 1) << 2) * arg6), 0),
-                                    MAX((f32) ((arg3 + spF0) * 4) + ((f32) (((sp104 << 5) + 0x20) << 2) * arg6), 0),
-                                    0,
-                                    -MIN(((s32) ((s32) (1024.0f / arg6) * spF8) >> 7), 0),
-                                    (((D_hd_code_8036C220[arg1] & 1)?((spEC << 5) << 5):(0)) - MIN((s32) ((s32) (1024.0f / arg6) * spF4) >> 7,0)),
-                                    (s32)(1024.0f / arg6),
-                                    (s32)(1024.0f / arg6));
-            }
-        }
-    }
-
-    gDPPipeSync(entry++);
-
-    return entry;
 }
+
 #endif
