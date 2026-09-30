@@ -41,14 +41,20 @@ func = "func_hd_code_8029CB04"
 vram = 0x8029CB10
 value = 0x1181000B # beq $t4, $at, .Lhd_code_8029CF40 -> beq $t4, $at, .Lhd_code_8029CB40
 
-
 [[patches.instruction]]
 func = "Thread3"
 vram = 0x80244CFC
 value = 0x00000000 # prevents infinite loop because thread is not yielding
-
 [[patches.instruction]]
 func = "Thread3"
 vram = 0x80245E84
 value = 0x00000000 # prevents infinite loop because thread is not yielding
 
+[[patches.instruction]]
+func = "func_hd_code_80272ED8"
+vram = 0x80272FB0
+value = 0x00000000 # nop. forces nearest/point filtering for sprites to fix texture issue
+[[patches.instruction]]
+func = "func_hd_code_80272ED8"
+vram = 0x80272FD4
+value = 0x1000000D # always branch. forces nearest/point filtering for sprites to fix texture issue
