@@ -8,6 +8,7 @@
 #include <hd_code/functions.h>
 #include <hd_code/variables.h>
 #include <hd_code/yoshi.h>
+#include <hd_code/music.h>
 
 Gfx sExtendedGfx[2][EXTENDED_DL_SIZE];
 
@@ -46,7 +47,7 @@ RECOMP_PATCH void func_hd_code_802559F8(Gfx* gfx, s32* length) {
 }
 
 // @recomp: Enable extended RT64 commands in hdGameFrame
-RECOMP_PATCH Gfx* func_hd_code_8024C414(struct Model1* arg0, s32* arg1) {
+RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
     Gfx* entry;
     u8 sp194[16];
     u8 sp184[16];
@@ -75,8 +76,8 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct Model1* arg0, s32* arg1) {
 
     guTranslate(&arg0->modelview, 0.f, 0.f, 0.f);
     // @recomp: make both orthos fill the whole frame
-    guOrtho(&arg0->mtx1, 0, 320.f, 240.f, 0.0f, -20000.0f, 20000.0f, 1.0f);
-    guOrtho(&arg0->mtx2, 0, 1280.f, 960.f, 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&arg0->mtxOrtho, 0, 320.f, 240.f, 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&arg0->mtxOrthoLarge, 0, 1280.f, 960.f, 0.0f, -20000.0f, 20000.0f, 1.0f);
     func_hd_code_802507C8(&arg0->projection2, &arg0->lookAt, &arg0->unk180);
 
     gDPSetColorImage(entry++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, D_hd_code_80358050[D_hd_code_8035805C]);
@@ -458,7 +459,7 @@ extern Vtx D_hd_code_802FD9B8[10];
 
 
 // @recomp: missile carrier arrow. wobbles in-game. This is fixed with tagging
-RECOMP_PATCH void func_hd_code_80282C80(Gfx** gfx, struct Model1* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7) {
+RECOMP_PATCH void func_hd_code_80282C80(Gfx** gfx, struct FrameContext* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7) {
     Gfx* entry = *gfx;
     f32 sp130;
     f32 sp12C;
@@ -578,7 +579,7 @@ RECOMP_PATCH void func_hd_code_80282C80(Gfx** gfx, struct Model1* arg1, s32 arg2
 }
 
 // @recomp: white-out fade is not full-screen. fixed this by tagging this
-RECOMP_PATCH void func_hd_code_8025E67C(Gfx** arg0, struct Model1* arg1, u8 arg2) {
+RECOMP_PATCH void func_hd_code_8025E67C(Gfx** arg0, struct FrameContext* arg1, u8 arg2) {
     Gfx* entry;
     u32 sp60;
     u32 sp5C;
@@ -600,14 +601,14 @@ RECOMP_PATCH void func_hd_code_8025E67C(Gfx** arg0, struct Model1* arg1, u8 arg2
                     break;
                 case 50: /* switch 1 */
                     D_hd_code_8036BB1A = -1;
-                    func_hd_code_8026AF6C(0xA00EU);
+                    yoshiShow(0xA00EU);
                     func_hd_code_80261570(0.0f);
                     break;
                 default: /* switch 1 */
                     sndPlaySfx(D_hd_code_80367738, 0x31U, NULL);
                     D_hd_code_802E8BD8 = 1;
                     if ((D_hd_code_8036BB18 != -1) || (func_hd_code_8026B10C() != 0)) {
-                        func_hd_code_8026AF6C(0x4000U);
+                        yoshiShow(0x4000U);
                     }
                     D_hd_code_8036BB1A = -1;
                     func_hd_code_80261570(0.0f);
@@ -646,7 +647,7 @@ RECOMP_PATCH void func_hd_code_8025E67C(Gfx** arg0, struct Model1* arg1, u8 arg2
                     gEXMatrixGroupSkipAllAspect(entry++, TAG_FADE_SCREEN, G_EX_PUSH, G_MTX_PROJECTION, G_EX_EDIT_NONE,
                                                 G_EX_ASPECT_STRETCH); // @recomp: force stretching
                     
-                    gSPMatrix(entry++, &D_2000000.mtx1, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+                    gSPMatrix(entry++, &D_2000000.mtxOrtho, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
                     gSPMatrix(entry++, &D_2000000.modelview, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gDPPipeSync(entry++);
                     gDPSetRenderMode(entry++, G_RM_CLD_SURF, G_RM_CLD_SURF2);
@@ -707,7 +708,7 @@ extern Vtx D_hd_code_802FA820[2][4];
 extern struct S_802FA280 D_hd_code_802FA280[60][2];
 #define qu102(n) ((u16) ((n) * 0x0004))
 // @recomp: The sky-quad (yes no skybox) is tied to 4:3 ratio. This code fixes it for all aspect ratios
-RECOMP_PATCH Gfx* func_hd_code_80271FD0(Gfx* arg0, struct Model1* arg1, u16 arg2, s16 arg3, s16 arg4, s32* arg5) {
+RECOMP_PATCH Gfx* func_hd_code_80271FD0(Gfx* arg0, struct FrameContext* arg1, u16 arg2, s16 arg3, s16 arg4, s32* arg5) {
     Gfx* entry = arg0;
     INIT_FROM_ARRAY(u16 sp78[2], sp78, D_hd_code_802FA8A0);
     s32 sp74;
@@ -768,7 +769,7 @@ RECOMP_PATCH Gfx* func_hd_code_80271FD0(Gfx* arg0, struct Model1* arg1, u16 arg2
         gDPLoadBlock(entry++, G_TX_LOADTILE, 0, 0, 1023, 256);
     }
 
-    gSPMatrix(entry++, OS_PHYSICAL_TO_K0(&arg1->mtx2), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    gSPMatrix(entry++, OS_PHYSICAL_TO_K0(&arg1->mtxOrthoLarge), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gSPMatrix(entry++, OS_PHYSICAL_TO_K0(&arg1->modelview), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPTileSync(entry++);
     gDPSetTextureLOD(entry++, G_TL_TILE);
@@ -834,7 +835,7 @@ RECOMP_PATCH Gfx* func_hd_code_80274BF0(void* arg0, Gfx* gfx) {
             D_hd_code_8036C784 = 0xFF;
             if ((g_currentGameState & 0x51800100040000)) {
                 D_hd_code_8036C770 = func_hd_code_8026B10C();
-                func_hd_code_8026AF6C(0U);
+                yoshiShow(0U);
             }
             D_hd_code_8036C780 = D_hd_code_803156C4;
         } else {
@@ -850,7 +851,7 @@ RECOMP_PATCH Gfx* func_hd_code_80274BF0(void* arg0, Gfx* gfx) {
     } else if (D_hd_code_8036C784 != 0) {
         D_hd_code_8036C784 = MAX(0.0f, 255.0f - ((D_hd_code_803156C4 - D_hd_code_8036C780) * D_hd_code_802FA930));
         if (D_hd_code_8036C784 == 0) {
-            func_hd_code_8026AF6C(D_hd_code_8036C770);
+            yoshiShow(D_hd_code_8036C770);
             D_hd_code_8036C770 = 0;
         }
     }
@@ -878,7 +879,7 @@ RECOMP_PATCH Gfx* func_hd_code_80274BF0(void* arg0, Gfx* gfx) {
 
 static s32 sLastBuilding = 0;
 // @recomp: This fixes the arrow of the building that has to be destroyed for the missile carrier path
-RECOMP_PATCH void func_hd_code_80275478(struct Model1* arg0, Gfx** arg1, s32 arg2) {
+RECOMP_PATCH void func_hd_code_80275478(struct FrameContext* arg0, Gfx** arg1, s32 arg2) {
     s16 sp76;
     s16 sp74;
     s16 sp72;
@@ -905,7 +906,7 @@ RECOMP_PATCH void func_hd_code_80275478(struct Model1* arg0, Gfx** arg1, s32 arg
     sp54 = D_hd_code_8036C790;
     if ((D_hd_code_8036EB98 == 0) && (sp50 == 0) && (D_hd_code_80364AA8 == 1) && (D_hd_code_802E8BD0 == 0)) {
         if (func_hd_code_8026AD30(0x4B) == 0) {
-            func_hd_code_8026AF6C(0x803DU);
+            yoshiShow(0x803DU);
             func_hd_code_80277EDC(3, 1, 2, 0x82);
         }
         D_hd_code_8036EB98 = 1;
@@ -1304,12 +1305,12 @@ extern f32 D_hd_front_end_80217B5C;
 extern Mtx D_hd_front_end_80217B70[7][4];
 extern S_80218270 D_hd_front_end_80218270[];
 
-Gfx* func_hd_front_end_801FE238(Gfx*, struct Model1*);
-Gfx* func_hd_front_end_801F4110(Gfx* gfx, struct Model1* arg1, struct S_8020BD30* arg2, f32 arg3);
-Gfx* func_hd_front_end_801F3964(Gfx* gfx, struct Model1* arg1, struct S_8020BD30* arg2, f32 arg3);
+Gfx* func_hd_front_end_801FE238(Gfx*, struct FrameContext*);
+Gfx* func_hd_front_end_801F4110(Gfx* gfx, struct FrameContext* arg1, struct S_8020BD30* arg2, f32 arg3);
+Gfx* func_hd_front_end_801F3964(Gfx* gfx, struct FrameContext* arg1, struct S_8020BD30* arg2, f32 arg3);
 #define TAG_PLANET(arg) (0x500 | (arg))
 
-RECOMP_PATCH void func_hd_front_end_801F4878(Gfx* gfx, struct Model1* arg1) {
+RECOMP_PATCH void func_hd_front_end_801F4878(Gfx* gfx, struct FrameContext* arg1) {
     Gfx* entry = gfx;
     s32 sp68;
     struct S_8020BD30* sp64;
@@ -1350,12 +1351,12 @@ RECOMP_PATCH void func_hd_front_end_801F4878(Gfx* gfx, struct Model1* arg1) {
                 entry = func_hd_front_end_801FE238(entry, arg1);
                 break;
             case 6:
-                gSPMatrix(entry++, &arg1->mtx2, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+                gSPMatrix(entry++, &arg1->mtxOrthoLarge, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
                 gSPMatrix(entry++, &arg1->modelview, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
                 entry = func_hd_front_end_801F4110(entry, arg1, sp60, sp58);
                 break;
             default:
-                gSPMatrix(entry++, &arg1->mtx2, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+                gSPMatrix(entry++, &arg1->mtxOrthoLarge, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
                 gSPMatrix(entry++, &arg1->modelview, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
                 entry = func_hd_front_end_801F3964(entry, arg1, sp60, sp58);
                 break;

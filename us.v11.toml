@@ -24,9 +24,6 @@ ignored = [
     "_osMapTLBRdb",
     "___osProbeTLB",
     "___osGetCause",
-    "func_hd_code_802C3FC0",
-    "func_hd_code_802D3308",
-
     "__osClearPage", 
     "__osBlockSum", 
     "__osPfsDeclearPage",
