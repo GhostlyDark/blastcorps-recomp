@@ -7,5 +7,6 @@
 #define TAG_PILLARBOX_START 0x400
 #define TAG_PILLARBOX_END 0x40F
 #define TAG_PILLARBOX_PROJECTION 0x410
+#define TAG_SHADOW(id) (0x1000 | (id))
 
 #define TAG_VEHICLE(addr, arg1) ((u32)(addr) | (arg1) << 24)

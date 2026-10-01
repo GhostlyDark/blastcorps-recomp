@@ -1371,3 +1371,130 @@ RECOMP_PATCH void func_hd_front_end_801F4878(Gfx* gfx, struct FrameContext* arg1
 }
 
 #endif
+
+
+#if 1
+
+extern s32 D_hd_code_8036506C;
+extern s16 D_hd_code_80364440;
+// @recomp: dynamically generated shadow tagging
+RECOMP_PATCH void func_hd_code_8024E4F4(Gfx** arg0, struct FrameContext* arg1, u8 arg2) {
+    Gfx* entry; // sp144
+    s32 sp140;
+    s16 pad;
+    s16 sp13C;
+    s16 sp13A;
+    s16 sp138;
+    s16 sp136;
+    s16 sp134;
+    u8 sp133;
+    f32 spF0[4][4];
+    f32 spB0[4][4];
+    s16 spAE;
+    s16 spAC;
+    u8 spAB;
+
+    entry = *arg0;
+    if (arg2 == 0) {
+        D_hd_code_8036506C = 0;
+    }
+    gDPPipeSync(entry++);
+    gDPSetTexturePersp(entry++, G_TP_PERSP);
+    gDPSetCycleType(entry++, G_CYC_1CYCLE);
+    gSPClearGeometryMode(entry++, 0xFFFFFFFF);
+    gSPSetGeometryMode(entry++, G_SHADE | G_CULL_BACK | G_LOD | G_SHADING_SMOOTH);
+    gSPTexture(entry++, qu016(0.999985), qu016(0.999985), 0, G_TX_RENDERTILE, G_ON);
+    gDPSetCombineMode(entry++, G_CC_MODULATEIA, G_CC_MODULATEIA);
+    gDPSetTextureFilter(entry++, G_TF_BILERP);
+    gDPSetRenderMode(entry++, G_RM_CLD_SURF, G_RM_CLD_SURF2);
+
+    sp133 = !D_hd_code_803649E8 && (D_hd_code_803649EC || (g_currentGameState & 0x1801));
+    sp140 = 0;
+    while (&D_hd_code_803643C8.textures[sp140] != D_hd_code_803643C8.end) {
+        if (((D_hd_code_803643C8.textures[sp140].unk1022 != 0) || (sp133 != 0)) &&
+            (D_hd_code_803643C8.textures[sp140].unk1022 != 0xFE) &&
+            ((D_hd_code_803643C8.textures[sp140].unk1022 != 0xFF) || (D_hd_code_803EF6FF == 0)) &&
+            ((D_hd_code_803643C8.textures[sp140].unk1022 == 0xFD) || (D_hd_code_80364A84 == 0) ||
+             (D_hd_code_80364AC1 == 0)) &&
+            D_hd_code_803643C8.textures[sp140].unk1023 == arg2) {
+            sp13C = D_hd_code_803643C8.textures[sp140].unk1004 >> 5;
+            sp13A = D_hd_code_803643C8.textures[sp140].unk1008 >> 5;
+            sp138 = D_hd_code_803643C8.textures[sp140].unk100C >> 5;
+            sp136 = D_hd_code_803643C8.textures[sp140].unk1018; // 2D x
+            sp134 = D_hd_code_803643C8.textures[sp140].unk101A; // 2D y
+            spAB = D_hd_code_803643C8.textures[sp140].unk1022 == D_hd_code_80364456 && D_hd_code_803ED40D == 0x65;
+            if (spAB) {
+                guAlignF(spB0, ((f32) D_hd_code_80364440 * 360.0) / 4096.0f, 0.0f, 1.0f,
+                         0.0f); // Additional rotation around y axis if spAB
+            }
+            guAlignF(spF0, ((f32) -D_hd_code_803643C8.textures[sp140].unk101E * 360.0) / 4096.0f, 0.0f, 1.0f,
+                     0.0f); // rotation around y axis by -unk101E * D_hd_code_803087C0 degrees
+            if (spAB) {
+                guMtxCatF(spB0, spF0, spF0); // Apply additional rotation
+            }
+            guAlignF(spB0, (f32) (((f64) (f32) D_hd_code_803643C8.textures[sp140].unk101C * 360.0) / 4096.0), 1.0f, 0,
+                     0.0f);
+            guMtxCatF(spF0, spB0, spB0);
+            guAlignF(spF0, (f32) (((f64) (f32) D_hd_code_803643C8.textures[sp140].unk1020 * 360.0) / 4096.0), 0, 0,
+                     1.0f);
+            guMtxCatF(spB0, spF0, spF0);
+            guAlignF(spB0, (f32) (((f64) (f32) D_hd_code_803643C8.textures[sp140].unk101E * 360.0) / 4096.0), 0, 1.0f,
+                     0.0f);
+            guMtxCatF(spF0, spB0, spF0);
+            guTranslateF(spB0, (f32) sp13C, (f32) sp13A, (f32) sp138);
+            guMtxCatF(spF0, spB0, spF0);
+            guMtxF2L(spF0, &arg1->unk2C0[sp140]);
+
+            if (spAB) {
+                gDPLoadTextureBlock(entry++, OS_PHYSICAL_TO_K0(D_hd_code_802FA940), G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
+                                    G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
+                spAC = spAE = 32;
+            } else {
+                gDPLoadTextureBlock(entry++, K0_TO_PHYS((s32) (D_hd_code_803643C8.textures[sp140].data)), G_IM_FMT_IA,
+                                    G_IM_SIZ_8b, 64, 64, 0, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP,
+                                    G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                spAC = spAE = 64;
+            }
+
+            SET_COLOR_VERTEX(arg1->unk1580[D_hd_code_8036506C + 4], (s16) -sp136, 0, sp134, (s16) ((spAE - 1) << 5),
+                             (s16) ((spAC - 1) << 5), 0xA, 0xA, 0xA, 0x8C);
+            D_hd_code_8036506C++;
+            SET_COLOR_VERTEX(arg1->unk1580[D_hd_code_8036506C + 4], sp136, 0, sp134, 0, (s16) ((spAC - 1) << 5), 0xA,
+                             0xA, 0xA, 0x8C);
+            D_hd_code_8036506C++;
+            SET_COLOR_VERTEX(arg1->unk1580[D_hd_code_8036506C + 4], sp136, 0, (s16) -sp134, 0, 0, 0xA, 0xA, 0xA, 0x8C);
+            D_hd_code_8036506C++;
+            SET_COLOR_VERTEX(arg1->unk1580[D_hd_code_8036506C + 4], (s16) -sp136, 0, (s16) -sp134,
+                             (s16) ((spAE - 1) << 5), 0, 0xA, 0xA, 0xA, 0x8C);
+            D_hd_code_8036506C++;
+
+            // @recomp Tag the shadows
+            gEXMatrixGroupDecomposedNormal(entry++, TAG_SHADOW(sp140), G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
+
+
+            if ((D_hd_code_803643D6 != 0) && !(D_hd_code_80364AA8 & 0x81) &&
+                (D_hd_code_803643C8.textures[sp140].unk1022 == D_hd_code_80364456)) {
+                gSPMatrix(entry++, &D_2000000.unk1540, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+            }
+            gSPMatrix(entry++, &D_2000000.unk2C0[sp140], G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+            gSPVertex(entry++, &D_2000000.unk1580[D_hd_code_8036506C], 4, 0);
+            gSP1Triangle(entry++, 0, 1, 2, 0);
+            gSP1Triangle(entry++, 0, 2, 3, 0);
+            gSPPopMatrix(entry++, G_MTX_MODELVIEW);
+
+            if ((D_hd_code_803643D6 != 0) && !(D_hd_code_80364AA8 & 0x81) &&
+                (D_hd_code_803643C8.textures[sp140].unk1022 == D_hd_code_80364456)) {
+                gSPPopMatrix(entry++, G_MTX_MODELVIEW);
+            }
+            // @recomp Pop the transform id.
+            gEXPopMatrixGroup(entry++, G_MTX_MODELVIEW);
+
+            gDPPipeSync(entry++);
+        }
+        sp140++;
+    }
+    *arg0 = entry;
+}
+
+#endif
