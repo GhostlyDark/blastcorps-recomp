@@ -1,5 +1,6 @@
 #include "patches.h"
 #include "misc_funcs.h"
+#include "config.h"
 #include <PR/sched.h>
 #include <hd_code/macros.h>
 #include <hd_code/functions.h>
@@ -22,11 +23,20 @@ extern void* D_hd_front_end_80219F68[8];
 extern u8 D_hd_front_end_8020C000[0x14];
 extern u8 D_hd_front_end_8020C014[8];
 
+extern s32 D_hd_code_802FA268;
+extern s32 D_hd_code_802FA26C;
+
 RECOMP_PATCH void MainJump() {
     // @recomp: removed osInitialize, removed debug args parsing
 
     // @recomp: inform the runtime that we're loading a new segment
     recomp_load_overlays((u32) 0x00800000, (u32*) 0x802447C0, 0x000CAEA0);
+
+    // @recomp: Activate cheat mode if configured in config.h
+#if CHEAT_MODE_ACTIVATED
+    D_hd_code_802FA268 = 1;
+    D_hd_code_802FA26C = 1;
+#endif
 
     osCreateThread(&g_Thread1, 1, Thread1, NULL, g_Thread1Stack + 0x200, 0xA);
     osStartThread(&g_Thread1);
