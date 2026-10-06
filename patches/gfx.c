@@ -395,7 +395,7 @@ RECOMP_PATCH void func_hd_code_8024FC2C(Gfx** arg0, u8 arg1) {
             ((D_hd_code_80364460[sp60].unk5C == 0xFD) || (D_hd_code_80364A84 == 0) || (D_hd_code_80364AC1 == 0))) {
 
             // @recomp Tag the transform.
-            gEXMatrixGroupSimpleNormal(entry++, TAG_VEHICLE(D_hd_code_80364460, arg1), G_EX_PUSH,
+            gEXMatrixGroupSimpleNormal(entry++, TAG_VEHICLE(sp60, arg1), G_EX_PUSH,
                                        G_MTX_MODELVIEW, G_EX_EDIT_NONE);
 
             gSPSegment(entry++, 0x06, osVirtualToPhysical((void*) D_hd_code_80364460[sp60].unk0));
@@ -1271,7 +1271,7 @@ RECOMP_PATCH void func_hd_code_80288DF0(Gfx** gfx, u8 arg1) {
     *gfx = entry;
 }
 
-#if 0
+#if 1
 struct S_8020BD30 {
     f32 unk0;
     s32 pad4;
@@ -1338,7 +1338,8 @@ RECOMP_PATCH void func_hd_front_end_801F4878(Gfx* gfx, struct FrameContext* arg1
 
         // @recomp: tag planets one by one
         gEXMatrixGroupDecomposedNormal(entry++, TAG_PLANET(sp68), G_EX_PUSH, G_MTX_PROJECTION, G_EX_EDIT_NONE);
-        gEXMatrixGroupDecomposedNormal(entry++, TAG_PLANET(sp68) | 0x10, G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
+        gEXMatrixGroupDecomposedPosRotOnly(entry++, TAG_PLANET(sp68) | 0x10, G_EX_PUSH, G_MTX_MODELVIEW,
+                                           G_EX_EDIT_NONE);
 
         switch (sp68) {
             case 3:
@@ -1470,7 +1471,8 @@ RECOMP_PATCH void func_hd_code_8024E4F4(Gfx** arg0, struct FrameContext* arg1, u
             D_hd_code_8036506C++;
 
             // @recomp Tag the shadows
-            gEXMatrixGroupDecomposedNormal(entry++, TAG_SHADOW(sp140), G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
+            gEXMatrixGroupDecomposedVertsSkipRot(entry++, TAG_SHADOW(sp140), G_EX_PUSH, G_MTX_MODELVIEW,
+                                                 G_EX_EDIT_NONE);
 
 
             if ((D_hd_code_803643D6 != 0) && !(D_hd_code_80364AA8 & 0x81) &&
@@ -1495,6 +1497,118 @@ RECOMP_PATCH void func_hd_code_8024E4F4(Gfx** arg0, struct FrameContext* arg1, u
         sp140++;
     }
     *arg0 = entry;
+}
+
+#endif
+
+#if 1
+extern Vp D_hd_code_802E8C60;
+RECOMP_PATCH void func_hd_code_80258544(struct Texture* arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, s32* arg5, s32* arg6,
+                           s32* arg7) {
+    Gfx* entry;
+    u16 sp9A;
+    u32 pad;
+
+    entry = &D_hd_code_803650B0[0];
+
+    // @recomp: enable extended commands for shadow rendering
+    gEXEnable(entry++);
+
+
+    gSPViewport(entry++, VIRTUAL_TO_PHYSICAL(&D_hd_code_802E8C60));
+    gSPClearGeometryMode(entry++, G_ZBUFFER | G_TEXTURE_ENABLE | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING |
+                                      G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR | G_LOD | G_SHADING_SMOOTH | 0xFFE0CDF8);
+    gSPTexture(entry++, qu016(0.999985), qu016(0.999985), 0, G_TX_RENDERTILE, G_OFF);
+    gSPSegment(entry++, 0x00, 0x00000000);
+    gSPSegment(entry++, 0x06, VIRTUAL_TO_PHYSICAL(arg6));
+    gSPSegment(entry++, 0x07, VIRTUAL_TO_PHYSICAL(arg7));
+    gDPPipeSync(entry++);
+    gDPSetScissor(entry++, G_SC_NON_INTERLACE, 0, 0, 63, 63);
+    gDPSetPrimColor(entry++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gDPSetColorDither(entry++, G_CD_DISABLE);
+    gDPSetCycleType(entry++, G_CYC_FILL);
+    gDPSetColorImage(entry++, G_IM_FMT_CI, G_IM_SIZ_8b, 64, VIRTUAL_TO_PHYSICAL(arg0));
+    gDPSetFillColor(entry++, 0x00010001);
+    gDPFillRectangle(entry++, 0, 0, 63, 63);
+    gDPPipeSync(entry++);
+    gDPSetCycleType(entry++, G_CYC_1CYCLE);
+    gDPSetRenderMode(entry++, G_RM_OPA_CI, G_RM_OPA_CI2);
+    gDPSetCombineMode(entry++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+
+    // @recomp Tag the shadows
+    s32 sp140 = ((s32) arg0 - (s32) D_hd_code_803643C8.textures) / 0x1040;
+    gEXMatrixGroupDecomposedNormal(entry++, TAG_SHADOW(sp140) | 0x100, G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
+    gEXMatrixGroupDecomposedNormal(entry++, TAG_SHADOW(sp140) | 0x200, G_EX_PUSH, G_MTX_PROJECTION, G_EX_EDIT_NONE);
+
+
+
+    guPerspective(&D_hd_code_803651F0, &sp9A, 45.0f, 1.0f, 1.0f, 1000.0f, 1.0f);
+    gSPMatrix(entry++, VIRTUAL_TO_PHYSICAL(&D_hd_code_803651F0), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    gSPPerspNormalize(entry++, sp9A);
+
+    guTranslate(&D_hd_code_803652F0, 0.0f, 0.0f, -arg4);
+    gSPMatrix(entry++, VIRTUAL_TO_PHYSICAL(&D_hd_code_803652F0), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
+    guAlign(&D_hd_code_80365270, -90.0f, 1.0f, 0.0f, 0.0f);
+    gSPMatrix(entry++, VIRTUAL_TO_PHYSICAL(&D_hd_code_80365270), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+
+    guAlign(&D_hd_code_803652B0, 180.0f, 0.0f, 1.0f, 0.0f);
+    gSPMatrix(entry++, VIRTUAL_TO_PHYSICAL(&D_hd_code_803652B0), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+
+    guTranslate(&D_hd_code_80365230, -(arg1 / 32.0f), -(arg2 / 32.0f), -(arg3 / 32.0f));
+    gSPMatrix(entry++, VIRTUAL_TO_PHYSICAL(&D_hd_code_80365230), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+    gSPDisplayList(entry++, VIRTUAL_TO_PHYSICAL(arg5));
+    
+    // @recomp Pop the transform id.
+    gEXPopMatrixGroup(entry++, G_MTX_PROJECTION);
+    gEXPopMatrixGroup(entry++, G_MTX_MODELVIEW);
+
+    
+    gSPEndDisplayList(entry++);
+
+    osWritebackDCache(&D_hd_code_803651F0, 0x140);
+    gfxSubmitTask(&D_hd_code_803650B0, entry - D_hd_code_803650B0, 1, 0, 0x61F, 0);
+}
+
+#endif
+
+
+#if 1
+
+extern f32 D_hd_front_end_8020E3D8;
+extern s8 D_hd_front_end_8021A907;
+
+Gfx* func_hd_front_end_801FA180(Gfx* arg0, struct FrameContext* arg1, f32 arg2, s8* arg3);
+
+RECOMP_PATCH Gfx* func_hd_front_end_801F9820(Gfx* gfx, struct FrameContext* arg1, s32* arg2) {
+    Gfx* entry = gfx;
+    gSPSegment(entry++, 0, 0x00000000);
+    gSPSegment(entry++, 2, osVirtualToPhysical(arg1));
+    gSPSegment(entry++, 1, osVirtualToPhysical(D_hd_code_8035806C));
+    gSPDisplayList(entry++, D_1000010);
+    gSPDisplayList(entry++, D_1000038);
+    gDPSetColorImage(entry++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, D_hd_code_80358050[D_hd_code_8035805C]);
+    gDPSetDepthImage(entry++, D_hd_code_80358058);
+    gDPPipeSync(entry++);
+    gDPSetRenderMode(entry++, G_RM_AA_XLU_LINE, G_RM_AA_XLU_LINE2);
+    gSPPerspNormalize(entry++, D_hd_code_8035807C);
+
+    // @recomp Tag the transform.
+    gEXMatrixGroupDecomposedNormal(entry++, TAG_PLANET_LINES, G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
+
+    gSPMatrix(entry++, &arg1->projection, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(entry++, &arg1->projection2, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPMatrix(entry++, &D_hd_front_end_80217B70[3][D_hd_code_8035805C], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(entry++, &D_hd_front_end_80217B70[3][D_hd_code_8035805C + 2], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPMatrix(entry++, &arg1->unk1280, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+    entry = func_hd_front_end_801FA180(entry, arg1, D_hd_front_end_8020E3D8, &D_hd_front_end_8021A907);
+
+    // @recomp Pop the transform id.
+    gEXPopMatrixGroup(entry++, G_MTX_MODELVIEW);
+
+    gSPEndDisplayList(entry++);
+    *arg2 = (s32) ((s32) entry - (s32) gfx) >> 3;
+    return entry;
 }
 
 #endif
