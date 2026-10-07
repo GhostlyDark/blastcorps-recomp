@@ -283,7 +283,7 @@ RECOMP_PATCH void gfxSubmitTask(Gfx* displayList, s32 displayListEntries, u8 arg
     if (displayList->words.w0 == 0xCAFEBABE) {
         displayList->words.w0 = 0x0;
 
-        displayList = sExtendedGfx;
+        displayList = sExtendedGfx[D_hd_code_8035805C];
     }
         
 

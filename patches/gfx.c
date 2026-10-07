@@ -370,7 +370,7 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
     }
     func_hd_code_80259C24(&entry, arg0);
     // @recomp: use extended dl
-    *arg1 = (s32) (((s32) entry - (s32) sExtendedGfx)) >> 3;
+    *arg1 = (s32) (((s32) entry - (s32) sExtendedGfx[D_hd_code_8035805C])) >> 3;
     return entry;
 }
 
