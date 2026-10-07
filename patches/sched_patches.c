@@ -61,27 +61,15 @@ static bool sGfxTaskPending = 0;
 
 // @recomp: osGetTime()/osGetCount() counts at 46875000 ticks/sec
 #define OS_COUNTS_PER_SEC 46875000U //
-static u32 sLastRetraceTime = 0;
 RECOMP_PATCH void __scRetraceDone(OSSched* scheduler) {
     OSScTask* rspTask;
     OSScClient* client;
     s32 sp3C;
     s32 sp38;
 
-    // @recomp: cap incrementing retrace counter to 60fps. Unsure whether this is necessary
-    OSTime elapsedTime = osGetCount() - sLastRetraceTime;
-
-    s32 retraceTargetFps = 60;
-    if (elapsedTime > OS_COUNTS_PER_SEC / retraceTargetFps) {
-        scheduler->retraceCount++;
-        if (D_hd_code_802E8BD0 == 0) {
-            scheduler->unk803156C0++;
-        }
-        #if EXPERIMENTAL_SCHEDULER_PATCH
-        sLastRetraceTime += OS_COUNTS_PER_SEC / retraceTargetFps;
-        #else
-        sLastRetraceTime = osGetCount();
-        #endif
+    scheduler->retraceCount++;
+    if (D_hd_code_802E8BD0 == 0) {
+        scheduler->unk803156C0++;
     }
 
     D_hd_code_8036BF38 = osGetTime();
@@ -131,9 +119,6 @@ static s32 sPendingDpDone = 0;
 static s32 sAudioFrame = 0;
 
 RECOMP_PATCH void __scMain(void* params) {
-#if EXPERIMENTAL_SCHEDULER_PATCH
-    sLastRetraceTime = osGetCount();
-#endif
     OSMesg msg;
     OSSched* scheduler;
     OSScClient* client;
@@ -236,26 +221,12 @@ static void gfxThrottle() {
     // gfx task, capping the render rate at 30fps on modern hardware. This is not done
     // when the nintendo or rare logo is rendered. This renders much faster on the N64 than the game
 
-#if EXPERIMENTAL_SCHEDULER_PATCH
-    u32 targetFps = 30;
-    u32 nowTime = osGetCount();
-    u32 firstTime = nowTime;
-    s32 elapsedTime = nowTime - sLastMainGfxWaited;
-
-    while (elapsedTime < (OS_COUNTS_PER_SEC / targetFps)) {
-        yield_self();
-        nowTime = osGetCount();
-        elapsedTime = nowTime - sLastMainGfxWaited;
-    }
-    sLastMainGfxWaited = firstTime;
-#else
     u32 targetFps = 35;
 
     while ((u32)osGetCount() - (u32)sLastMainGfxWaited < (OS_COUNTS_PER_SEC / targetFps)) {
         yield_self();
     }
     sLastMainGfxWaited = osGetCount();
-#endif
     sGfxTaskPending = 0;
 }
 
