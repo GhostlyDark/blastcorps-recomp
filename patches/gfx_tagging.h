@@ -12,5 +12,7 @@
 #define TAG_SHADOW(id) (0x1000 | (id))
 // 0x1100 is shadow projection
 // 0x1200 is shadow modelview
-// 0x1300 is free
+
+// slotIndex is 0-15
+#define TAG_EXPLOSION(slotIndex) (0x1300 | (slotIndex))
 
