@@ -4,6 +4,7 @@
 #include "gfx.h"
 #include "pillarbox_patches.h"
 #include <PR/sched.h>
+#include <PR/gbi.h>
 #include <hd_code/macros.h>
 #include <hd_code/functions.h>
 #include <hd_code/variables.h>
@@ -44,6 +45,47 @@ RECOMP_PATCH void func_hd_code_802559F8(Gfx* gfx, s32* length) {
     if (*length >= EXTENDED_DL_SIZE) {
         rmonPrintf(ASSERT_MESSAGE, "*length<EXTENDED_DL_SIZE", "patches.c", 0x123);
     }
+}
+
+#define HUD_FB_WIDTH 320
+#define HUD_FB_HEIGHT 240
+
+s32 gCfbWidth = HUD_FB_WIDTH;
+s32 gCfbHeight = HUD_FB_HEIGHT;
+
+Vp gHudViewport = {
+    .vp = {
+        .vscale = { (HUD_FB_WIDTH / 2) << 2, (HUD_FB_HEIGHT / 2) << 2, G_MAXZ, 0 },
+        .vtrans = { (HUD_FB_WIDTH / 2) << 2, (HUD_FB_HEIGHT / 2) << 2, 0, 0 },
+    }
+};
+
+Gfx* hud_begin(Gfx *entry) {
+    gEXPushScissor(entry++);
+    gEXSetScissor(entry++, G_SC_NON_INTERLACE, G_EX_ORIGIN_LEFT, G_EX_ORIGIN_RIGHT, 0, 0, 0, gCfbHeight);
+
+    gEXPushViewport(entry++);
+    gEXViewport(entry++, G_EX_ORIGIN_LEFT, &gHudViewport);
+    return entry;
+}
+
+Gfx* hud_align_right(Gfx* entry) {
+    gEXSetViewportAlign(entry++, G_EX_ORIGIN_RIGHT, -(gCfbWidth << 2), 0);
+    gSPViewport(entry++, &gHudViewport);
+    return entry;
+}
+
+Gfx* hud_align_left(Gfx* entry) {
+    gEXSetViewportAlign(entry++, G_EX_ORIGIN_LEFT, 0, 0);
+    gSPViewport(entry++, &gHudViewport);
+    return entry;
+}
+
+Gfx* hud_end(Gfx* entry) {
+    gEXSetViewportAlign(entry++, G_EX_ORIGIN_NONE, 0, 0);
+    gEXPopViewport(entry++);
+    gEXPopScissor(entry++);
+    return entry;
 }
 
 // @recomp: Enable extended RT64 commands in hdGameFrame
@@ -253,11 +295,23 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
     if (D_hd_code_803643DB != 0) {
         func_hd_code_8028273C(&entry, D_hd_code_8035805C);
     }
+
+    // @recomp: fix viewport to take aspect ratio into account
+    entry = hud_begin(entry);
+
     if ((D_hd_code_80364A68 != 0) && (g_currentGameState & 0x104)) {
         func_hd_code_80286C60(&entry, arg0, D_hd_code_8035805C, D_hd_code_80364456);
     }
     if ((g_currentGameState & 0x200000000400220C)) {
-        func_hd_code_80278324(&entry, arg0, D_hd_code_8035805C);
+        // @recomp: align comms to the right if it is rendered on the right
+        if (D_hd_code_802FBD50[0].v.ob[0] > 0x50) {
+            // comms is on the right side
+            entry = hud_align_right(entry);
+            func_hd_code_80278324(&entry, arg0, D_hd_code_8035805C);
+            entry = hud_align_left(entry);
+        } else {
+            func_hd_code_80278324(&entry, arg0, D_hd_code_8035805C);
+        }
     }
     if ((g_currentGameState == 0x100) && (D_hd_code_803643DB != 0)) {
         func_hd_code_80276E50(&entry, arg0, D_hd_code_8035805C, D_hd_code_803643E0, D_hd_code_803643E4,
@@ -369,6 +423,9 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
         }
     }
     func_hd_code_80259C24(&entry, arg0);
+    // @recomp: end hud drawing
+    entry = hud_end(entry);
+
     // @recomp: use extended dl
     *arg1 = (s32) (((s32) entry - (s32) sExtendedGfx[D_hd_code_8035805C])) >> 3;
     return entry;
