@@ -8,3 +8,6 @@
 // and potentially others
 
 #define CHEAT_MODE_ACTIVATED 0
+
+// When set to 1, all levels are unlocked and playable
+#define UNLOCK_ALL_LEVELS 0

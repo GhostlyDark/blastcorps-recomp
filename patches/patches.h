@@ -47,6 +47,10 @@ void osWriteBackDCacheAll(void);
 #define osViGetCurrentFramebuffer osViGetCurrentFramebuffer_recomp
 #define osViSwapBuffer osViSwapBuffer_recomp
 #define osGetTime osGetTime_recomp
+#define osPfsFindFile osPfsFindFile_recomp
+#define osPfsReadWriteFile osPfsReadWriteFile_recomp
+#define osEepromLongWrite osEepromLongWrite_recomp
+#define osEepromLongRead osEepromLongRead_recomp
 
 #include <ultra64.h>
 #include <PR/mbi.h>

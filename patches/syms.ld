@@ -69,3 +69,7 @@ osViGetNextFramebuffer_recomp = 0x8F000230;
 osViGetCurrentFramebuffer_recomp = 0x8F000234;
 osViSwapBuffer_recomp = 0x8F000238;
 osGetTime_recomp = 0x8F00023C;
+osPfsFindFile_recomp = 0x8F000240;
+osPfsReadWriteFile_recomp = 0x8F000244;
+osEepromLongWrite_recomp = 0x8F000248;
+osEepromLongRead_recomp = 0x8F00024C;
