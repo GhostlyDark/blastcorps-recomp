@@ -81,6 +81,12 @@ Gfx* hud_align_left(Gfx* entry) {
     return entry;
 }
 
+Gfx* hud_align_none(Gfx* entry) {
+    gEXSetViewportAlign(entry++, G_EX_ORIGIN_NONE, 0, 0);
+    gSPViewport(entry++, &gHudViewport);
+    return entry;
+}
+
 Gfx* hud_end(Gfx* entry) {
     gEXSetViewportAlign(entry++, G_EX_ORIGIN_NONE, 0, 0);
     gEXPopViewport(entry++);
@@ -341,8 +347,10 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
     }
     if ((g_currentGameState & 0x2000000000000104) &&
         (!(D_hd_code_80364AA8 & 0x81) || (D_hd_code_803643DB != 0) || (D_hd_code_80364AC1 != 0))) {
+        entry = hud_align_none(entry);
         func_hd_code_80275478(arg0, &entry,
                               g_currentGameState & 0x100 || D_hd_code_8036BB18 == 0x4D || D_hd_code_8036BB18 == 0x49);
+        entry = hud_align_left(entry);
     }
     if ((g_nextGameState == 0) && (areWeFading() == 0)) {
         if (!(g_currentGameState & 0x200000100400230C) &&
@@ -405,8 +413,10 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
             case 0x100000000000:
             case 0x100:
             case 0x200:
+                entry = hud_align_none(entry);
                 func_hd_code_8025E2CC(&entry, arg0, D_hd_code_8035805C);
                 func_hd_code_8025E67C(&entry, arg0, D_hd_code_8035805C);
+                entry = hud_align_left(entry);
             case 0x400:
             case 0x40:
                 if (((D_hd_code_803643D6 != 0) || (D_hd_code_803643D7 != 0) || (D_hd_code_803643D9 != 0) ||
@@ -1095,8 +1105,8 @@ RECOMP_PATCH void func_hd_code_80275478(struct FrameContext* arg0, Gfx** arg1, s
             gEXMatrixGroup(entry++, TAG_ARROWS, G_EX_INTERPOLATE_SIMPLE, G_EX_PUSH, G_MTX_MODELVIEW,
                            G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE,
                            G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE,
-                           G_EX_COMPONENT_SKIP, G_EX_ORDER_LINEAR, G_EX_EDIT_ALLOW, G_EX_ASPECT_STRETCH,
-                           G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_SKIP);
+                           G_EX_COMPONENT_SKIP, G_EX_ORDER_LINEAR, G_EX_EDIT_ALLOW, G_EX_ASPECT_AUTO,
+                           G_EX_COMPONENT_SKIP, G_EX_COMPONENT_SKIP);
         } else {
             // @recomp Tag the transform.
             gEXMatrixGroupSkipAll(entry++, TAG_ARROWS, G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
@@ -1246,7 +1256,8 @@ RECOMP_PATCH void func_hd_code_80288DF0(Gfx** gfx, u8 arg1) {
                            G_EX_ASPECT_STRETCH, G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_SKIP);
         } else {
             // @recomp Tag the transform.
-            gEXMatrixGroupSkipAll(entry++, TAG_ARROWS, G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
+            gEXMatrixGroupSkipAll(entry++, (u32) &D_hd_code_8036EC38[sp2FC], G_EX_PUSH, G_MTX_MODELVIEW,
+                                  G_EX_EDIT_NONE);
             D_hd_code_8036EC38[sp2FC].pad1E = 1;
             // rmonPrintf("INTERPOLATION SKIPPED FOR PARTICLE: %d !\n", sp2FC);
         }
@@ -1365,7 +1376,6 @@ extern S_80218270 D_hd_front_end_80218270[];
 Gfx* func_hd_front_end_801FE238(Gfx*, struct FrameContext*);
 Gfx* func_hd_front_end_801F4110(Gfx* gfx, struct FrameContext* arg1, struct S_8020BD30* arg2, f32 arg3);
 Gfx* func_hd_front_end_801F3964(Gfx* gfx, struct FrameContext* arg1, struct S_8020BD30* arg2, f32 arg3);
-#define TAG_PLANET(arg) (0x500 | (arg))
 
 RECOMP_PATCH void func_hd_front_end_801F4878(Gfx* gfx, struct FrameContext* arg1) {
     Gfx* entry = gfx;

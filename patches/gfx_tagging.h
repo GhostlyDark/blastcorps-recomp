@@ -15,4 +15,5 @@
 
 // slotIndex is 0-15
 #define TAG_EXPLOSION(slotIndex) (0x1300 | (slotIndex))
+#define TAG_PLANET(arg) (0x1400 | (arg))
 
