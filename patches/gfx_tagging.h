@@ -16,4 +16,6 @@
 // slotIndex is 0-15
 #define TAG_EXPLOSION(slotIndex) (0x1300 | (slotIndex))
 #define TAG_PLANET(arg) (0x1400 | (arg))
+// building id can be 55 / 0x37 at max. 0x1500 - 0x15FF is enough. reflect is 0 or 1
+#define TAG_BUILDING(id, reflect) (0x1500 | ((id)<<1) | (reflect))
 
