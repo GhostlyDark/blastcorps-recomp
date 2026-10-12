@@ -114,9 +114,6 @@ namespace banjo {
     };
 
     CutsceneAspectRatioMode get_cutscene_aspect_ratio_mode();
-    NativeFrameRateMode get_native_framerate_mode();
-    DrawDistanceMode get_draw_distance_mode();
-    FogDistanceMode get_fog_distance_mode();
 
     void open_quit_game_prompt();
 };

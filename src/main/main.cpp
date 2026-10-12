@@ -706,9 +706,6 @@ int main(int argc, char** argv) {
     REGISTER_FUNC(recomp_get_target_aspect_ratio);
     REGISTER_FUNC(recomp_get_target_framerate);
     // REGISTER_FUNC(recomp_get_cutscene_aspect_ratio);
-    REGISTER_FUNC(recomp_get_native_framerate_config);
-    REGISTER_FUNC(recomp_get_draw_distance_config);
-    REGISTER_FUNC(recomp_get_fog_distance_config);
     REGISTER_FUNC(recomp_get_analog_cam_enabled);
     REGISTER_FUNC(recomp_get_right_analog_inputs);
     REGISTER_FUNC(recomp_get_bgm_volume);

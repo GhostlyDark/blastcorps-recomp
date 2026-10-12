@@ -23,20 +23,6 @@
 static void add_general_options(recomp::config::Config &config) {
     using EnumOptionVector = const std::vector<recomp::config::ConfigOptionEnumOption>;
     # if 0
-    static EnumOptionVector note_saving_mode_options = {
-        {banjo::NoteSavingMode::Off,        "Off",    "Off"},
-        {banjo::NoteSavingMode::OnlyNotes,  "Notes",  "Only Notes"},
-        {banjo::NoteSavingMode::OnlyJinjos, "Jinjos", "Only Jinjos"},
-        // Keeping as "On" to preserve compatibility with previous configs before jinjo saving
-        {banjo::NoteSavingMode::Both,       "On",     "Both"},
-    };
-    config.add_enum_option(
-        banjo::configkeys::general::note_saving_mode,
-        "Note & Jinjo Saving",
-        "Saves collected notes and jinjos so that you don't need to collect them again when revisiting a level. <recomp-color primary>Both</recomp-color> is the default, while <recomp-color primary>off</recomp-color> matches the original game.<br /><br />Changing this setting will only take effect when entering/exiting a level, or restarting the game.",
-        note_saving_mode_options,
-        banjo::NoteSavingMode::Both
-    );
     static EnumOptionVector analog_cam_mode_options = {
         {banjo::AnalogCamMode::Off, "Off", "Off"},
         {banjo::AnalogCamMode::On, "On", "On"},
@@ -188,56 +174,6 @@ static void add_graphics_options(recomp::config::Config &config) {
     );
     #endif
 
-    static EnumOptionVector native_framerate_mode_options = {
-        {banjo::NativeFrameRateMode::_30_FPS, "30 FPS", "30 FPS"},
-        {banjo::NativeFrameRateMode::_60_FPS, "60 FPS", "60 FPS"},
-    };
-    static EnumOptionVector draw_distance_mode_options = {
-        { banjo::DrawDistanceMode::Original, "Original", "Original" },
-        { banjo::DrawDistanceMode::Extended, "Extended", "Extended" },
-        { banjo::DrawDistanceMode::Extreme, "Extreme", "Extreme" },
-    };
-    static EnumOptionVector fog_distance_mode_options = {
-        { banjo::FogDistanceMode::Original, "Original", "Original" },
-        { banjo::FogDistanceMode::Extended, "Extended", "Extended" },
-        { banjo::FogDistanceMode::Extreme, "Extreme", "Extreme" },
-    };
-    config.add_enum_option(
-        banjo::configkeys::graphics::native_framerate_mode,
-        "Internal Framerate",
-        "Sets the internal framerate of the game, 30 FPS matches the original game, 60 FPS can improve responsiveness at the expense of performance",
-        native_framerate_mode_options,
-        banjo::NativeFrameRateMode::_60_FPS
-    );
-    config.add_enum_option(
-        banjo::configkeys::graphics::draw_distance_mode,
-        "Draw Distance",
-        "Sets the Draw Distance of the level geometry. This setting only affects single player mode."
-        "<br />"
-        "<recomp-color primary>Original</recomp-color> respects the original game setting."
-        "<br />"
-        "<recomp-color primary>Extended</recomp-color> (Recommended) is fine-tuned to be as far as possible without causing performance issues."
-        "<br />"
-        "<recomp-color primary>Extreme</recomp-color> sets the draw distance to unlimited. "
-        "<recomp-color warning>Warning</recomp-color>, the <recomp-color primary>Extreme</recomp-color> setting can be really expensive to the CPU while interpolation is enabled and can cause dramatic performance drops even on high end systems."
-        "<br />"
-        "It's recommended to set <recomp-color primary>Framerate</recomp-color> to <recomp-color primary>Original</recomp-color> (Interpolation disabled) as well as <recomp-color primary>Internal Framerate</recomp-color>  to <recomp-color primary>60 FPS</recomp-color>  when setting Draw Distance to <recomp-color primary>Extreme</recomp-color>.",
-        draw_distance_mode_options,
-        banjo::DrawDistanceMode::Extended
-    );
-    config.add_enum_option(
-        banjo::configkeys::graphics::fog_distance_mode,
-        "Fog Distance",
-        "Sets the Fog Distance."
-        "<br />"
-        "<recomp-color primary>Original</recomp-color> respects the original game setting."
-        "<br />"
-        "<recomp-color primary>Extended</recomp-color> (Recommended) is fine-tuned to be as far as possible without any popping." 
-        "<br />"
-        "<recomp-color primary>Extreme</recomp-color> disables the fog completely.",
-        fog_distance_mode_options,
-        banjo::DrawDistanceMode::Extended
-    );
 }
 
 static void set_control_defaults() {
@@ -315,18 +251,6 @@ static void set_control_descriptions() {
 
 banjo::CutsceneAspectRatioMode banjo::get_cutscene_aspect_ratio_mode() {
     return get_graphics_config_enum_value<banjo::CutsceneAspectRatioMode>(banjo::configkeys::graphics::cutscene_aspect_ratio_mode);
-}
-
-banjo::NativeFrameRateMode banjo::get_native_framerate_mode() {
-    return get_graphics_config_enum_value<banjo::NativeFrameRateMode>(banjo::configkeys::graphics::native_framerate_mode);
-}
-
-banjo::DrawDistanceMode banjo::get_draw_distance_mode() {
-    return get_graphics_config_enum_value<banjo::DrawDistanceMode>(banjo::configkeys::graphics::draw_distance_mode);
-}
-
-banjo::FogDistanceMode banjo::get_fog_distance_mode() {
-    return get_graphics_config_enum_value<banjo::FogDistanceMode>(banjo::configkeys::graphics::fog_distance_mode);
 }
 
 void banjo::init_config() {

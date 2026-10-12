@@ -170,48 +170,6 @@ extern "C" void recomp_get_cutscene_aspect_ratio(uint8_t *rdram, recomp_context 
     }
 }
 
-extern "C" void recomp_get_native_framerate_config(uint8_t *rdram, recomp_context *ctx) {
-    switch (banjo::get_native_framerate_mode()) {
-        case banjo::NativeFrameRateMode::_30_FPS:
-            _return(ctx, 1);
-            return;
-        default:
-        case banjo::NativeFrameRateMode::_60_FPS:
-            _return(ctx, 2);
-            return;
-    }
-}
-
-extern "C" void recomp_get_draw_distance_config(uint8_t *rdram, recomp_context *ctx) {
-    switch (banjo::get_draw_distance_mode()) {
-        case banjo::DrawDistanceMode::Original:
-            _return(ctx, 1);
-            return;
-        case banjo::DrawDistanceMode::Extreme:
-            _return(ctx, 2);
-            return;
-        default:
-        case banjo::DrawDistanceMode::Extended:
-            _return(ctx, 0);
-            return;
-    }
-}
-
-extern "C" void recomp_get_fog_distance_config(uint8_t *rdram, recomp_context *ctx) {
-    switch (banjo::get_fog_distance_mode()) {
-        case banjo::FogDistanceMode::Original:
-            _return(ctx, 2);
-            return;
-        case banjo::FogDistanceMode::Extreme:
-            _return(ctx, 1);
-            return;
-        default:
-        case banjo::FogDistanceMode::Extended:
-            _return(ctx, 0);
-            return;
-    }
-}
-
 extern "C" void recomp_get_bgm_volume(uint8_t* rdram, recomp_context* ctx) {
     _return(ctx, banjo::get_bgm_volume() / 100.0f);
 }
