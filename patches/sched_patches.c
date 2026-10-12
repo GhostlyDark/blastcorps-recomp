@@ -35,6 +35,7 @@ extern OSTimer D_hd_code_8036BF78;
 extern s32 g_nextRetrace;
 extern s32 D_hd_code_8036BF18;
 extern OSScTask* g_currentRdpTask;
+extern u8 g_gfxTaskSlotUsed[5];
 
 typedef struct AudioInfo_s {
     s16* data;
@@ -197,9 +198,9 @@ RECOMP_PATCH void __scExecAudioIfIdle(OSSched* scheduler) {
     }
 }
 
-extern OSScTask D_hd_code_8036E698[5][2];
-extern void* D_hd_code_8036E660[6];
-extern void* D_hd_code_8036E678[5];
+extern OSScTask g_gfxTasks[5][2];
+extern void* g_gfxMicrocodeText[6];
+extern void* g_gfxMicrocodeData[5];
 extern u64 D_hd_code_80367750;
 extern u64 D_hd_code_8036AFB0;
 
@@ -235,7 +236,7 @@ RECOMP_PATCH void gfxWaitForTask(u32 arg0) {
 
     do {
         osRecvMesg(&D_hd_code_803153D8, (OSMesg) &sp1C, 1);
-        D_hd_code_8036E68C[sp1C >> 16] = 0;
+        g_gfxTaskSlotUsed[sp1C >> 16] = 0;
         sp1C &= 0xFFFF;
 
         gfxThrottle();
@@ -262,8 +263,8 @@ RECOMP_PATCH void gfxSubmitTask(Gfx* displayList, s32 displayListEntries, u8 arg
     s32 displayListSize;
 
     displayListSize = displayListEntries * sizeof(Gfx);
-    gfxTask = &D_hd_code_8036E698[arg2][D_hd_code_8035805C];
-    D_hd_code_8036E68C[(u8) arg2] = 1;
+    gfxTask = &g_gfxTasks[arg2][D_hd_code_8035805C];
+    g_gfxTaskSlotUsed[(u8) arg2] = 1;
     gfxTask->list.t.type = M_GFXTASK;
     if ((u8) arg2 == 4) {
         gfxTask->list.t.flags = OS_TASK_DP_WAIT;
@@ -272,8 +273,8 @@ RECOMP_PATCH void gfxSubmitTask(Gfx* displayList, s32 displayListEntries, u8 arg
     }
     gfxTask->list.t.ucode_boot = (u64*) rspbootTextStart;
     gfxTask->list.t.ucode_boot_size = (u32) aspMainTextStart - (u32) rspbootTextStart;
-    gfxTask->list.t.ucode = (u64*) D_hd_code_8036E660[(u8) arg2];
-    gfxTask->list.t.ucode_data = (u64*) D_hd_code_8036E678[(u8) arg2];
+    gfxTask->list.t.ucode = (u64*) g_gfxMicrocodeText[(u8) arg2];
+    gfxTask->list.t.ucode_data = (u64*) g_gfxMicrocodeData[(u8) arg2];
     gfxTask->list.t.ucode_size = 0x1000;
     gfxTask->list.t.ucode_data_size = 0x800;
     gfxTask->list.t.dram_stack = &D_hd_code_80367750;

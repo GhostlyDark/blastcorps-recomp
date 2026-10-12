@@ -10,6 +10,7 @@
 #include <hd_code/variables.h>
 #include <hd_code/yoshi.h>
 #include <hd_code/music.h>
+#include <hd_code/gfx.h>
 
 Gfx sExtendedGfx[2][EXTENDED_DL_SIZE];
 
@@ -336,12 +337,12 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
     if ((D_hd_code_80364AA8 & 1) && ((g_currentGameState & 0x0400030C))) {
         func_hd_code_8026A378(D_hd_code_803649F4, &sp194[1]);
         sp194[0] = 0x24;
-        func_hd_code_80259CCC(arg0, &sp194, NULL, 1, 0, 0x118, 0x12, 0x14, 0x14, 0, 0xFF, 0xFF, 0xFF,
+        drawTextSimple(arg0, &sp194, NULL, 1, 0, 0x118, 0x12, 0x14, 0x14, 0, 0xFF, 0xFF, 0xFF,
                               (s32) D_hd_code_80367BD0.unk6);
         if ((D_hd_code_80364A44 != 0) && (D_hd_code_802E8BD0 == 0)) {
             func_hd_code_8026A378(D_hd_code_80364A44, &sp184[1]);
             sp184[0] = 0x24;
-            func_hd_code_80259CCC(arg0, &sp184, NULL, 1, 0, (s32) D_hd_code_80364A4A, (s32) D_hd_code_80364A4C, 0x23,
+            drawTextSimple(arg0, &sp184, NULL, 1, 0, (s32) D_hd_code_80364A4A, (s32) D_hd_code_80364A4C, 0x23,
                                   0x23, (s32) D_hd_code_80364A4E, 0xFF, 0xFF, 0xFF, D_hd_code_80364A48);
         }
     }
@@ -359,24 +360,24 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
              ((D_hd_code_802E8BEC != 0) && ((D_hd_code_80366A12 == 3) || (D_hd_code_802E8BEC == 1)))) &&
             ((g_currentGameState != 0x100000000000) || (D_hd_code_803A6B04 != 0)) &&
             ((!(g_currentGameState & 0x1801)) || (players[playerNumber].unk91 != 0)) && (g_currentLevel != 0x2F)) {
-            func_hd_code_80259CCC(arg0, "PRESS START", NULL, 1, 0, 0x5C, 0xC4, 0x1A, 0x1A, 1, 0xFF, 0xFF, 0xFF, 0xFF);
+            drawTextSimple(arg0, "PRESS START", NULL, 1, 0, 0x5C, 0xC4, 0x1A, 0x1A, 1, 0xFF, 0xFF, 0xFF, 0xFF);
         }
         if ((u32) ((u32) (((u32) sc.retraceCount % 40U) * 60) / 60U) >= 16U) {
             if (D_hd_code_802E8BD0 != 0) {
                 if ((g_currentGameState == 0x2000000000000000) && (D_hd_code_8036BB1C == 2)) {
-                    func_hd_code_80259CCC(arg0, "USE Z/R TO TURN PAGES", D_hd_code_8030491C, 0, 0, 0x18, 0x14, 0xF, 0xF,
+                    drawTextSimple(arg0, "USE Z/R TO TURN PAGES", D_hd_code_8030491C, 0, 0, 0x18, 0x14, 0xF, 0xF,
                                           1, 0xFF, 0xFF, 0xFF, 0xFF);
                 } else if ((g_currentGameState == 0x100) && (D_hd_code_8036BB18 == 0) && (D_hd_code_8036BB1C == 2) &&
                            (D_hd_code_803643DB != 0) && !(g_currentButtons & (Z_TRIG | R_TRIG))) {
-                    func_hd_code_80259CCC(arg0, "USE Z/R TO MOVE MAP", D_hd_code_80304938, 0, 0, 0x18, 0x14, 0xF, 0xF,
+                    drawTextSimple(arg0, "USE Z/R TO MOVE MAP", D_hd_code_80304938, 0, 0, 0x18, 0x14, 0xF, 0xF,
                                           1, 0xFF, 0xFF, 0xFF, 0xFF);
                 }
             } else if ((g_currentGameState == 0x100)) {
                 if (D_hd_code_80364AC1 != 0) {
-                    func_hd_code_80259CCC(arg0, "SHUTTLE VIEW", D_hd_code_80304904, 0, 0, 0x18, 0x14, 0xF, 0xF, 1, 0xFF,
+                    drawTextSimple(arg0, "SHUTTLE VIEW", D_hd_code_80304904, 0, 0, 0x18, 0x14, 0xF, 0xF, 1, 0xFF,
                                           0xFF, 0xFF, 0xFF);
                 } else {
-                    func_hd_code_80259CCC(arg0, "MISSILE VIEW", D_hd_code_80304910, 0, 0, 0x18, 0x14, 0xF, 0xF, 1, 0xFF,
+                    drawTextSimple(arg0, "MISSILE VIEW", D_hd_code_80304910, 0, 0, 0x18, 0x14, 0xF, 0xF, 1, 0xFF,
                                           0xFF, 0xFF, 0xFF);
                 }
             }
@@ -432,7 +433,7 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
                 break;
         }
     }
-    func_hd_code_80259C24(&entry, arg0);
+    drawTextOrtho(&entry, arg0);
     // @recomp: end hud drawing
     entry = hud_end(entry);
 
@@ -699,9 +700,9 @@ RECOMP_PATCH void func_hd_code_8025E67C(Gfx** arg0, struct FrameContext* arg1, u
                                      ((s32) players[playerNumber].unk18[g_currentLevel] < 6)
                                  ? 1
                                  : 0) != 0) {
-                            func_hd_code_80275390(0x08000000);
+                            fadeToFast(0x08000000);
                         } else {
-                            func_hd_code_80275390(0x40);
+                            fadeToFast(0x40);
                         }
                     }
                     break;
@@ -744,9 +745,9 @@ RECOMP_PATCH void func_hd_code_8025E67C(Gfx** arg0, struct FrameContext* arg1, u
                                      ((s32) players[playerNumber].unk18[g_currentLevel] < 6))
                                         ? 1
                                         : 0 != 0) {
-                                    func_hd_code_80275390(0x08000000);
+                                    fadeToFast(0x08000000);
                                 } else {
-                                    func_hd_code_80275390(0x40);
+                                    fadeToFast(0x40);
                                 }
                             }
                         } else {

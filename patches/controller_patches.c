@@ -3,6 +3,7 @@
 #include "config.h"
 #include <PR/sched.h>
 #include <PR/os.h>
+#include <hd_code/gfx.h>
 #include <hd_code/macros.h>
 #include <hd_code/hd.h>
 #include <levels.h>
@@ -110,7 +111,7 @@ RECOMP_PATCH void func_hd_front_end_801F8980(void) {
         (D_hd_front_end_8021A924 == 1)) {
         D_hd_code_80364A87 = 0;
         sndPlaySfx((struct ALBankAlt_s*) D_hd_code_80367738, 0xDE, NULL);
-        func_hd_code_80275390(0x4000000000000000);
+        fadeToFast(0x4000000000000000);
         g_currentLevel = D_hd_front_end_8021A905;
     }
     sp3C = (D_hd_code_80370C2C * D_hd_code_80370C2C) + (D_hd_code_80370C2D * D_hd_code_80370C2D);
