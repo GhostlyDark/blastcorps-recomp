@@ -20,7 +20,7 @@ void recomptheme::set_custom_theme() {
     theme::set_theme_color(theme::color::TextA30, Color{242, 242, 242, 77});
     theme::set_theme_color(theme::color::TextA50, Color{242, 242, 242, 128});
     theme::set_theme_color(theme::color::TextA80, Color{242, 242, 242, 204});
-    theme::set_theme_color(theme::color::Primary, Color{29, 93, 226, 255});
+    theme::set_theme_color(theme::color::Primary, Color{226, 226, 226, 255});
     theme::set_theme_color(theme::color::PrimaryL, Color{167, 191, 241, 255});
     theme::set_theme_color(theme::color::PrimaryD, Color{0, 38, 117, 255});
     theme::set_theme_color(theme::color::PrimaryA5, Color{29, 93, 226, 13});
