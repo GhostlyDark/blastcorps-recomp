@@ -462,9 +462,14 @@ RECOMP_PATCH void func_hd_code_8024FC2C(Gfx** arg0, u8 arg1) {
             ((D_hd_code_80364460[sp60].unk5C != 0xFF) || (D_hd_code_803EF6FF == 0)) &&
             ((D_hd_code_80364460[sp60].unk5C == 0xFD) || (D_hd_code_80364A84 == 0) || (D_hd_code_80364AC1 == 0))) {
 
-            // @recomp Tag the transform.
-            gEXMatrixGroupSimpleNormal(entry++, TAG_VEHICLE(sp60, arg1), G_EX_PUSH,
-                                       G_MTX_MODELVIEW, G_EX_EDIT_NONE);
+            // @recomp Tag the transform. only pos and rot
+            // TODO: best effort here. does not work for fast wheels
+            gEXMatrixGroupSimple(entry++, TAG_VEHICLE(sp60, arg1), G_EX_PUSH, G_MTX_MODELVIEW,
+                                     G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_SKIP,
+                                     G_EX_COMPONENT_SKIP, G_EX_COMPONENT_SKIP,
+                                     G_EX_ORDER_LINEAR, G_EX_EDIT_NONE, G_EX_COMPONENT_SKIP, G_EX_COMPONENT_SKIP);
+            gSPMatrix(entry++, &D_2000000.modelview, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
 
             gSPSegment(entry++, 0x06, osVirtualToPhysical((void*) D_hd_code_80364460[sp60].unk0));
             if (((g_currentGameState & 0x1801)) &&
@@ -486,14 +491,14 @@ RECOMP_PATCH void func_hd_code_8024FC2C(Gfx** arg0, u8 arg1) {
                 gSPMatrix(entry++, &D_2000000.unk1500, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             }
             if (sp5E != 0) {
-                switch (arg1) { /* switch 1; irregular */
-                    case 0:     /* switch 1 */
+                switch (arg1) {
+                    case 0:
                         gSPDisplayList(entry++, osVirtualToPhysical((void*) D_hd_code_80364460[sp60].unkC));
                         break;
-                    case 1: /* switch 1 */
+                    case 1:
                         gSPDisplayList(entry++, osVirtualToPhysical((void*) D_hd_code_80364460[sp60].unk10));
                         break;
-                    case 2: /* switch 1 */
+                    case 2:
                         gSPDisplayList(entry++, osVirtualToPhysical((void*) D_hd_code_80364460[sp60].unk14));
                         break;
                 }
@@ -510,10 +515,9 @@ RECOMP_PATCH void func_hd_code_8024FC2C(Gfx** arg0, u8 arg1) {
                         break;
                 }
             }
-            gSPMatrix(entry++, &D_2000000.modelview, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-
             // @recomp Pop the transform id.
             gEXPopMatrixGroup(entry++, G_MTX_MODELVIEW);
+
         }
         sp60++;
     }
@@ -1679,4 +1683,94 @@ RECOMP_PATCH Gfx* func_hd_front_end_801F9820(Gfx* gfx, struct FrameContext* arg1
     return entry;
 }
 
+#endif
+
+
+#if 1
+
+struct S_8039C960 {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    s16 unk10;
+    s16 unk12;
+    s16 unk14;
+    s16 unk16;
+    u8 unk18;
+    s16 unk1A;
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+    u8 unk28;
+    u8 unk29;
+    u8 pad2A;
+    u8 pad2B;
+};  // Size: 0x2C
+
+struct S_802FE3C0 {
+    Gfx unk0[80];
+    Vtx unk280[50];
+    s16 unk5A0;
+    s16 pad5A2;
+    s32 unk5A4;
+    u8 unk5A8;
+    u8 unk5A9;
+    u8 pad5AA;
+    u8 pad5AB;
+    s32 unk5AC;
+    u8 unk5B0;
+    u8 pad5B1;
+    u8 pad5B2;
+    u8 pad5B3;
+    s32 pad5B4;
+};  // Size: 0x5B8
+
+extern struct S_8039C960 D_hd_code_8039C960[4];
+extern struct S_802FE3C0 D_hd_code_802FE3C0[1];
+
+RECOMP_PATCH void func_hd_code_80292EB8(Gfx** gfx, struct FrameContext* arg1) {
+    Gfx* entry;
+    s32 spD8;
+    f32 sp98[4][4];
+    f32 sp58[4][4];
+
+    entry = *gfx;
+
+    gDPPipeSync(entry++);
+    gDPSetCycleType(entry++, G_CYC_1CYCLE);
+    gDPSetRenderMode(entry++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
+    gDPSetCombineMode(entry++, G_CC_SHADE, G_CC_SHADE);
+    gSPClearGeometryMode(entry++, G_ZBUFFER | G_TEXTURE_ENABLE | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING |
+                                      G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR | G_LOD | G_SHADING_SMOOTH | 0xFFE0CDF8);
+    gSPSetGeometryMode(entry++, G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH);
+    gSPTexture(entry++, qu016(0.999985), qu016(0.999985), 0, G_TX_RENDERTILE, G_OFF);
+
+    for (spD8 = 0; spD8 < 4; spD8++) {
+        if ((D_hd_code_8039C960[spD8].unk28 != 0) && (D_hd_code_8039C960[spD8].unk24 >= 2)) {
+            guScaleF(sp98, 0.5f, 0.5f, 0.35f);
+            guAlignF(sp58, (f32)(((f64)D_hd_code_8039C960[spD8].unk16 / 4095.0) * 360.0), 1.0f, 0.0f, 0.0f);
+            guMtxCatF(sp98, sp58, sp98);
+            guAlignF(sp58, (f32)(((f64)D_hd_code_8039C960[spD8].unk14 / 4095.0) * 360.0), 0.0f, 1.0f, 0.0f);
+            guMtxCatF(sp98, sp58, sp98);
+            guTranslateF(sp58, (f32)D_hd_code_8039C960[spD8].unk0 / 32.0f, (f32)D_hd_code_8039C960[spD8].unk4 / 32.0f,
+                         (f32)D_hd_code_8039C960[spD8].unk8 / 32.0f);
+            guMtxCatF(sp98, sp58, sp98);
+            guMtxF2L(sp98, &arg1->unkD00[spD8]);
+
+            // @recomp: tag the transform
+            gEXMatrixGroupDecomposedNormal(entry++, TAG_PROJECTILE(spD8), G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
+            gSPMatrix(entry++, &D_2000000.unkD00[spD8], G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+            gDPPipeSync(entry++);
+            gDPSetPrimColor(entry++, 0, 0, D_hd_code_8039C960[spD8].unk29, 0, 0, 0xFF);
+            gSPDisplayList(entry++, osVirtualToPhysical(&D_hd_code_802FE3C0[D_hd_code_8039C960[spD8].unk18].unk0));
+            gSPPopMatrix(entry++, G_MTX_MODELVIEW);
+            // @recomp: pop the transform
+            gEXPopMatrixGroup(entry++, G_MTX_MODELVIEW);
+        }
+    }
+
+    gDPPipeSync(entry++);
+    *gfx = entry;
+}
 #endif
