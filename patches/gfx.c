@@ -462,12 +462,13 @@ RECOMP_PATCH void func_hd_code_8024FC2C(Gfx** arg0, u8 arg1) {
             ((D_hd_code_80364460[sp60].unk5C != 0xFF) || (D_hd_code_803EF6FF == 0)) &&
             ((D_hd_code_80364460[sp60].unk5C == 0xFD) || (D_hd_code_80364A84 == 0) || (D_hd_code_80364AC1 == 0))) {
 
-            // @recomp Tag the transform. only pos and rot
-            // TODO: best effort here. does not work for fast wheels
-            gEXMatrixGroupSimple(entry++, TAG_VEHICLE(sp60, arg1), G_EX_PUSH, G_MTX_MODELVIEW,
-                                     G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_SKIP,
-                                     G_EX_COMPONENT_SKIP, G_EX_COMPONENT_SKIP,
-                                     G_EX_ORDER_LINEAR, G_EX_EDIT_NONE, G_EX_COMPONENT_SKIP, G_EX_COMPONENT_SKIP);
+            // @recomp Tag the transform
+            gEXMatrixGroupDecomposed(entry++, TAG_VEHICLE(sp60, arg1), G_EX_PUSH, G_MTX_MODELVIEW,
+                                     G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE,
+                                     G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_SKIP, G_EX_COMPONENT_SKIP,
+                                     G_EX_COMPONENT_SKIP, G_EX_ORDER_LINEAR, G_EX_EDIT_NONE, G_EX_COMPONENT_SKIP,
+                                     G_EX_COMPONENT_SKIP);
+            // @recomp: move resetting the modelview matrix here
             gSPMatrix(entry++, &D_2000000.modelview, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
 
