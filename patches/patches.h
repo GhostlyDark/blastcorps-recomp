@@ -51,6 +51,8 @@ void osWriteBackDCacheAll(void);
 #define osPfsReadWriteFile osPfsReadWriteFile_recomp
 #define osEepromLongWrite osEepromLongWrite_recomp
 #define osEepromLongRead osEepromLongRead_recomp
+#define osEepromWrite osEepromWrite_recomp
+#define osEepromRead osEepromRead_recomp
 
 #include <ultra64.h>
 #include <PR/mbi.h>

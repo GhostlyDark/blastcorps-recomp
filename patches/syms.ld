@@ -70,3 +70,5 @@ osPfsFindFile_recomp = 0x8F000240;
 osPfsReadWriteFile_recomp = 0x8F000244;
 osEepromLongWrite_recomp = 0x8F000248;
 osEepromLongRead_recomp = 0x8F00024C;
+osEepromWrite_recomp = 0x8F000250;
+osEepromRead_recomp = 0x8F000254;

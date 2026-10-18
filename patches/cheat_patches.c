@@ -107,12 +107,51 @@ RECOMP_PATCH s32 func_hd_front_end_801F6264(u8 arg0, u8 write) {
     // mark slot as initialized properly
     D_hd_code_80365060[arg0] = 1;
 
-    if (!write)
-        sp3C = 0;
+    sp3C = 0;
     #endif
 
 
     return sp3C;
 }
 
+extern u16 D_hd_code_80364F70[];
+extern u16 D_hd_code_80364EF0[][0x10];
+RECOMP_PATCH s32 func_hd_front_end_801F67E4(u8 pn, u8 level, u8 arg2) {
+    s32 sp3C = 0;
+    s32 sp38;
+    u8 sp37;
+    u16* sp30;
 
+    sp37 = level * 2;
+    sp30 = &D_hd_code_80364F70[sp37 & ~3];
+
+    if (D_hd_code_802E8BF8 != 0) {
+        if (!(pn == D_hd_code_80364AEA)) {
+            rmonPrintf(ASSERT_MESSAGE, "pn==playerNumberAtStart", "pfsHandler.c", 0x25C);
+        }
+        if ((u8) arg2 == 1) {
+            D_hd_code_80364F70[sp37] = D_hd_code_80364EF0[pn][D_hd_code_802E8C44[players[pn].unk92[level]]];
+            D_hd_code_80364F70[sp37 + 1] = D_hd_code_80364F70[sp37] ^ 0x55AA;
+            rmonPrintf("%d %d EEWRITE %x %x\n", level, D_hd_code_80364F70[sp37], (u32) ((sp37 * 2) + 0x100) >> 3, sp30);
+            osEepromWrite(&D_hd_code_80370BF8, (u8) ((u32) ((sp37 * 2) + 0x100) >> 3), (u8*) sp30);
+        } else {
+            osEepromRead(&D_hd_code_80370BF8, (u8) ((u32) ((sp37 * 2) + 0x100) >> 3), (u8*) sp30);
+            for (sp38 = 0; sp38 < 2; sp38++, level++) {
+                if (((players[pn].unk18[level] > 0) && (players[pn].unk18[level] < 6) ? 1 : 0) != 0 &&
+                    (level != 0x31) && (level != 0x2F) && (level != 0x26)) {
+                    D_hd_code_80364EF0[pn][D_hd_code_802E8C44[players[pn].unk92[level]]] =
+                        D_hd_code_80364F70[level * 2];
+                    rmonPrintf("%d EETIMES: %d %d\n", level, D_hd_code_80364F70[level * 2],
+                               D_hd_code_80364F70[level * 2 + 1] ^ 0x55AA);
+                    if (D_hd_code_80364F70[level * 2] != (D_hd_code_80364F70[level * 2 + 1] ^ 0x55AA)) {
+                        sp3C = 0x6E382;
+                    }
+                }
+            }
+        }
+    }
+#if UNLOCK_ALL_LEVELS
+    sp3C = 0;
+#endif
+    return sp3C;
+}
