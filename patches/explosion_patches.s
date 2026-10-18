@@ -48,6 +48,7 @@ glabel func_hd_code_802A68D4
 
     save_all_regs
     or $a1, $t5, 0 /* slot index of the explosion, counted backwards 0 - 15 */
+    lbu $a2, 0x32($t4) /* frame counter of explosion */
     jal explosion_begin
     or $a0, $t2, 0 /* current Gfx pointer */
     sd $v0, 0x50($sp) /* store return of explosion_begin into the restoring stack place of $t2 */
