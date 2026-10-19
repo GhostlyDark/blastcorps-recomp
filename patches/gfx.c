@@ -88,6 +88,21 @@ Gfx* hud_align_none(Gfx* entry) {
     return entry;
 }
 
+Gfx* hud2d_align_right(Gfx* entry) {
+    gEXSetRectAlign(entry++, G_EX_ORIGIN_RIGHT, G_EX_ORIGIN_RIGHT, -(gCfbWidth << 2), 0, -(gCfbWidth << 2), 0);
+    return entry;
+}
+
+Gfx* hud2d_align_left(Gfx* entry) {
+    gEXSetRectAlign(entry++, G_EX_ORIGIN_LEFT, G_EX_ORIGIN_LEFT, 0, 0, 0, 0);
+    return entry;
+}
+
+Gfx* hud2d_align_none(Gfx* entry) {
+    gEXSetRectAlign(entry++, G_EX_ORIGIN_NONE, G_EX_ORIGIN_NONE, 0, 0, 0, 0);
+    return entry;
+}
+
 Gfx* hud_end(Gfx* entry) {
     gEXSetViewportAlign(entry++, G_EX_ORIGIN_NONE, 0, 0);
     gEXPopViewport(entry++);
@@ -335,15 +350,30 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
         func_hd_code_80282224(&entry, D_hd_code_80364456);
     }
     if ((D_hd_code_80364AA8 & 1) && ((g_currentGameState & 0x0400030C))) {
+        // @recomp: draw queued text, then right align for the money counter
+        drawTextOrtho(&entry, arg0);
+        entry = hud_align_right(entry);
+
         func_hd_code_8026A378(D_hd_code_803649F4, &sp194[1]);
         sp194[0] = 0x24;
         drawTextSimple(arg0, &sp194, NULL, 1, 0, 0x118, 0x12, 0x14, 0x14, 0, 0xFF, 0xFF, 0xFF,
                               (s32) D_hd_code_80367BD0.unk6);
+
+        // @recomp: the money popup on the left side stays left aligned
+        if (D_hd_code_80364A4A <= 0xA0) {
+            drawTextOrtho(&entry, arg0);
+            entry = hud_align_left(entry);
+        }
         if ((D_hd_code_80364A44 != 0) && (D_hd_code_802E8BD0 == 0)) {
             func_hd_code_8026A378(D_hd_code_80364A44, &sp184[1]);
             sp184[0] = 0x24;
             drawTextSimple(arg0, &sp184, NULL, 1, 0, (s32) D_hd_code_80364A4A, (s32) D_hd_code_80364A4C, 0x23,
                                   0x23, (s32) D_hd_code_80364A4E, 0xFF, 0xFF, 0xFF, D_hd_code_80364A48);
+        }
+        // @recomp: the money popup on the right side is right aligned
+        if (D_hd_code_80364A4A > 0xA0) {
+            drawTextOrtho(&entry, arg0);
+            entry = hud_align_left(entry);
         }
     }
     if ((g_currentGameState & 0x2000000000000104) &&
@@ -360,7 +390,12 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
              ((D_hd_code_802E8BEC != 0) && ((D_hd_code_80366A12 == 3) || (D_hd_code_802E8BEC == 1)))) &&
             ((g_currentGameState != 0x100000000000) || (D_hd_code_803A6B04 != 0)) &&
             ((!(g_currentGameState & 0x1801)) || (players[playerNumber].unk91 != 0)) && (g_currentLevel != 0x2F)) {
+            // @recomp: draw the text queued so far and draw PRESS START centered
+            drawTextOrtho(&entry, arg0);
+            entry = hud_align_none(entry);
             drawTextSimple(arg0, "PRESS START", NULL, 1, 0, 0x5C, 0xC4, 0x1A, 0x1A, 1, 0xFF, 0xFF, 0xFF, 0xFF);
+            drawTextOrtho(&entry, arg0);
+            entry = hud_align_left(entry);
         }
         if ((u32) ((u32) (((u32) sc.retraceCount % 40U) * 60) / 60U) >= 16U) {
             if (D_hd_code_802E8BD0 != 0) {
@@ -385,14 +420,21 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
     }
     if (((g_currentGameState & 0x440) || (g_currentLevel == 0x26)) && (D_hd_code_8036BB1C == 1) &&
         (areWeFading() == 0)) {
+        // @recomp: align the rare replay logo
         if (((g_currentGameState & 0x440)) && (D_hd_code_80364AA8 != 1)) {
+            entry = hud2d_align_right(entry);
             func_hd_code_80274B40(&entry, arg0, D_hd_code_80365580, 0x108, 0x12);
         } else {
+            entry = hud2d_align_left(entry);
             func_hd_code_80274B40(&entry, arg0, D_hd_code_80365580, 0x18, 0x12);
         }
+        entry = hud2d_align_none(entry); // @recomp
     }
     if (((g_currentGameState & 0x104)) && (D_hd_code_80364410 != 0)) {
+        // @recomp: align the rc car controller icon
+        entry = hud2d_align_right(entry);
         func_hd_code_80274B40(&entry, arg0, D_hd_code_80364A86, 0x108, 0xBE);
+        entry = hud2d_align_none(entry); // @recomp
     }
     if (((g_currentGameState & 0x104)) && (D_hd_code_80364AA8 == 1) && (D_hd_code_802E8BD0 == 0)) {
         func_hd_code_80285CC0();
@@ -649,6 +691,261 @@ RECOMP_PATCH void func_hd_code_80282C80(Gfx** gfx, struct FrameContext* arg1, s3
         gEXPopMatrixGroup(entry++, G_MTX_PROJECTION);
     }
     *gfx = entry;
+}
+
+extern u8 D_hd_code_80367B54;
+extern u8 D_hd_code_80367BB0[];
+extern struct S_80367BCC* D_hd_code_80367BCC;
+extern u16 D_hd_code_80367BF4;
+Gfx* func_hd_code_80264264(s32 arg0, Gfx* arg1);
+Gfx* func_hd_code_80272ED8(Gfx* arg0, u8 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5, f32 arg6);
+Gfx* func_hd_code_80274868(Gfx* gfx);
+Gfx* func_hd_code_80274AA4(Gfx* gfx);
+
+// @recomp: timer, building counter and their icons in the levels which are not main missions
+RECOMP_PATCH Gfx* func_hd_code_802639B4(Gfx* arg0, void* arg1, s32* arg2) {
+    Gfx* entry;
+    u32 sp60;
+    u8 sp5F;
+    u8 sp5E;
+    u8 sp5D;
+    u8 sp5C;
+    s16 sp5A;
+    s16 pad58;
+    s32 pad54;
+    s32 sp50;
+
+    entry = arg0;
+
+    // @recomp: the timer and the counters are drawn after the hud
+    entry = hud_begin(entry);
+    entry = hud_align_left(entry);
+    entry = hud2d_align_left(entry);
+
+    if (((g_currentGameState & 0x04000200)) && (D_hd_code_8036BB18 != 0x1E)) {
+        sp5A = 0xFF;
+    } else {
+        sp5A = D_hd_code_80367BD0.unk6;
+    }
+    switch ((u32)D_hd_code_80364AA8) {
+        case 0x2:
+            for (sp50 = 0; (sp50 < (D_hd_code_80367B54 - ((g_currentGameState & 0x440) ? 1 : 0))) &&
+                                          ((u32)sp50 < (u32)D_hd_code_80367C04->unk18);
+                      sp50++) {
+                if ((sp50 + 1 == D_hd_code_80367BFB) && (sp50 + 1 != D_hd_code_80367B54)) {
+                    drawTextSimple(arg1, D_hd_code_80367B60[sp50], NULL, 1U, 0, 0x18, (sp50 * 0x12) + 0x12, 0x14, 0x14, 1, 0xFF,
+                                                  0, 0, (s32)D_hd_code_80367BD0.unk6);
+                } else if ((sp50 + 1) == D_hd_code_80367B54) {
+                    drawTextSimple(arg1, D_hd_code_80367B60[sp50], NULL, 1U, 0, 0x18, (sp50 * 0x12) + 0x12, 0x14, 0x14, 1, 0xFF,
+                                                  0xFF, 0xFF, (s32)D_hd_code_80367BD0.unk6);
+                } else {
+                    drawTextSimple(arg1, D_hd_code_80367B60[sp50], NULL, 1U, 0, 0x18, (sp50 * 0x12) + 0x12, 0x14, 0x14, 1, 0xA0,
+                                                  0xA0, 0xA0, (s32)D_hd_code_80367BD0.unk6);
+                }
+            }
+            break;
+        case 0x4:
+        case 0x20:
+        case 0x80:
+            drawTextSimple(arg1, D_hd_code_80367B60[0], NULL, 1U, 0, 0x38, 0x14, 0x14, 0x14, 1, 0xFF, 0xFF, 0xFF, (s32)sp5A);
+            break;
+        case 0x8:
+            drawTextSimple(arg1, D_hd_code_80367B60[0], NULL, 1U, 0, 0x1C, 0x12, 0x14, 0x14, 1, 0xFF, 0xFF, 0xFF, (s32)sp5A);
+            break;
+        case 0x10:
+        case 0x40:
+            drawTextSimple(arg1, D_hd_code_80367B60[0], NULL, 1U, 0, 0x38, 0x12, 0x14, 0x14, 1, 0xFF, 0xFF, 0xFF, (s32)sp5A);
+            break;
+    }
+    sp5E = 0xFF;
+    sp5F = 0;
+    if ((g_currentGameState & 0x04000104)) {
+        sp5D = (s32)D_hd_code_80367BF4 < 0xA;
+        if (!sp5D) {
+            sp5F = 0xFF;
+        }
+    } else {
+        sp5D = 0;
+        sp5F = 0xFF;
+        sp5E = 0;
+    }
+    if (D_hd_code_80367BF4 == 0) {
+        sp5D = 0;
+    }
+    if ((sp5D == 0) || ((u32)((u32)sc.retraceCount % 20U) < 0x10U)) {
+        if (D_hd_code_80364AA8 == 2) {
+            drawTextSimple(arg1, D_hd_code_80367BB0, NULL, 1U, 0, 0x18, (sp50 * 0x12) + 0x14, 0x10, 0x10, 1, (s32)sp5E,
+                                          (s32)sp5F, 0, (s32)D_hd_code_80367BD0.unk6);
+        } else {
+            drawTextSimple(arg1, D_hd_code_80367BB0, NULL, 1U, 0, 0x1C, D_hd_code_80367BD0.unk8 + 0x2A, 0x10, 0x10, 1,
+                                          (s32)sp5E, (s32)sp5F, 0, (s32)sp5A);
+        }
+    }
+    if ((D_hd_code_803643D7 != 0) && (g_currentGameState == 0x04000000)) {
+        // @recomp: drawn without alignment like in the hud
+        entry = hud_align_none(entry);
+        entry = hud2d_align_none(entry);
+        func_hd_code_8025E2CC(&entry, arg1, D_hd_code_8035805C);
+        entry = hud_align_left(entry);
+        entry = hud2d_align_left(entry);
+    }
+    if (D_hd_code_80367BC8 != 0) {
+        // @recomp: the traffic lights at the start are centered
+        entry = hud_align_none(entry);
+        entry = hud2d_align_none(entry);
+        entry = func_hd_code_80264264((s32) arg1, entry);
+        entry = hud_align_left(entry);
+        entry = hud2d_align_left(entry);
+    }
+    entry = func_hd_code_80274868(entry);
+    if (D_hd_code_80367BCC != NULL) {
+        entry = func_hd_code_80272ED8(
+                entry,
+                D_hd_code_80367BCC->unk1B[(sc.retraceCount / D_hd_code_80367BCC->unk26) % D_hd_code_80367BCC->unk1A] +
+                        D_hd_code_80367BD0.unk4 - 1,
+                0x18, D_hd_code_80367BD0.unk8 + 0xC, (s32)sp5A, 1, 1.0f);
+    }
+    if (D_hd_code_80367BD0.unk0 != NULL) {
+        entry = func_hd_code_80272ED8(
+                entry,
+                D_hd_code_80367BD0.unk0
+                                ->unk1B[(sc.retraceCount / D_hd_code_80367BD0.unk0->unk26) % D_hd_code_80367BD0.unk0->unk1A] +
+                        D_hd_code_80367BD0.unk5 - 1,
+                0x18, D_hd_code_80367BD0.unk8 + 0xC, (s32)sp5A, 1, 1.0f);
+    }
+    entry = func_hd_code_80274AA4(entry);
+
+    // @recomp: draw the queued text with left alignment
+    drawTextOrtho(&entry, arg1);
+    entry = hud2d_align_none(entry);
+    entry = hud_end(entry);
+
+    arg2 += entry - arg0;
+    return entry;
+}
+
+#define qs510(n) ((s16) ((n) * 0x0400))
+extern u8* D_hd_code_8039CA94;
+extern u8* D_hd_code_8039CA98;
+extern void* D_hd_code_8039CA9C;
+Gfx* func_hd_code_8029700C(Gfx*, s16, s16);
+
+// @recomp: N64 controller showing the inputs of a recording
+RECOMP_PATCH Gfx* func_hd_code_80295EFC(s32 arg0, Gfx* gfx, s16 arg2, s16 arg3, u8 arg4) {
+    Gfx* entry = gfx;
+    s32 sp118;
+
+    // @recomp: draw the controller at the left side of the screen
+    entry = hud_begin(entry);
+    entry = hud2d_align_left(entry);
+
+    gDPPipeSync(entry++);
+    gSPTexture(entry++, 0, 0, 0, G_TX_RENDERTILE, G_OFF);
+    gDPSetTexturePersp(entry++, G_TP_NONE);
+    gDPSetCycleType(entry++, G_CYC_1CYCLE);
+    gDPSetRenderMode(entry++, G_RM_XLU_SURF, G_RM_NOOP2);
+    gDPSetCombineLERP(entry++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetPrimColor(entry++, 0, 0, 0, 0, 0, arg4 / 2);
+
+    entry = func_hd_code_8029700C(entry, arg2 - 4, arg3 + 4);
+
+    gDPPipeSync(entry++);
+    gDPSetCombineLERP(entry++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetPrimColor(entry++, 0, 0, 0, 0, 0, arg4);
+
+    entry = func_hd_code_8029700C(entry, arg2, arg3);
+    if (D_hd_code_80370C30 & 0x30) {
+        gDPLoadTextureBlock(entry++, D_hd_code_8039CA98, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 6, 0, G_TX_MIRROR | G_TX_WRAP,
+                                                G_TX_NOMIRROR | G_TX_CLAMP, 5, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+        if (D_hd_code_80370C30 & 0x10) {
+            gSPTextureRectangle(entry++, MAX((arg2 + 0x30) << 2, 0), MAX((arg3 + 8) << 2, 0), MAX((arg2 + 0x4F) << 2, 0),
+                                                    MAX((arg3 + 0xD) << 2, 0), G_TX_RENDERTILE, -MIN((((arg2 + 0x30) << 2) << 0xA) >> 7, 0),
+                                                    -MIN((((arg3 + 8) << 2) << 0xA) >> 7, 0), qs510(1), qs510(1));
+        }
+        if (D_hd_code_80370C30 & 0x20) {
+            gSPTextureRectangle(entry++, MAX((arg2) << 2, 0), MAX((arg3 + 8) << 2, 0), MAX((arg2 + 0x1F) << 2, 0),
+                                                    MAX((arg3 + 0xD) << 2, 0), G_TX_RENDERTILE, 0x400 - MIN((((arg2) << 2) << 0xA) >> 7, 0),
+                                                    -MIN((((arg3 + 8) << 2) << 0xA) >> 7, 0), qs510(1), qs510(1));
+        }
+    }
+    if (D_hd_code_80370C30 & 0x2000) {
+        gDPLoadTextureBlock(entry++, D_hd_code_8039CA9C, G_IM_FMT_RGBA, G_IM_SIZ_16b, 24, 24, 0, G_TX_NOMIRROR | G_TX_CLAMP,
+                                                G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+        gSPTextureRectangle(entry++, MAX((arg2 + 9) << 2, 0), MAX((arg3 + 0x33) << 2, 0), MAX((arg2 + 0x20) << 2, 0),
+                                                MAX((arg3 + 0x4A) << 2, 0), G_TX_RENDERTILE, -MIN((((arg2 + 9) << 2) << 0xA) >> 7, 0),
+                                                -MIN((((arg3 + 0x33) << 2) << 0xA) >> 7, 0), qs510(1), qs510(1));
+    }
+
+    gDPPipeSync(entry++);
+    gDPSetCombineMode(entry++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+    gDPLoadTextureBlock(entry++, D_hd_code_8039CA94, G_IM_FMT_IA, G_IM_SIZ_16b, 12, 10, 0, G_TX_NOMIRROR | G_TX_CLAMP,
+                                            G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+    {
+        u8 sp6F;
+        u16 sp6C;
+        u16 sp6A;
+
+        for (sp118 = 0; sp118 < 16; sp118++) {
+            sp6F = 1;
+            if (D_hd_code_80370C30 & (1 << sp118)) {
+                gDPPipeSync(entry++);
+
+                switch (1 << sp118) {
+                    case 0x8000:
+                        gDPSetPrimColor(entry++, 0, 0, 0x0, 0x0, 0xFF, arg4);
+                        sp6C = 0x39, sp6A = 0x1E;
+                        break;
+                    case 0x4000:
+                        gDPSetPrimColor(entry++, 0, 0, 0x0, 0xFF, 0, arg4);
+                        sp6C = 0x34, sp6A = 0x19;
+                        break;
+                    case 0x1000:
+                        gDPSetPrimColor(entry++, 0, 0, 0xFF, 0, 0, arg4);
+                        sp6C = 0x23, sp6A = 0x1B;
+                        break;
+                    case 0x200:
+                        gDPSetPrimColor(entry++, 0, 0, 0x50, 0x50, 0x50, arg4);
+                        sp6C = 4, sp6A = 0x16;
+                        break;
+                    case 0x100:
+                        gDPSetPrimColor(entry++, 0, 0, 0x50, 0x50, 0x50, arg4);
+                        sp6C = 0x10, sp6A = 0x16;
+                        break;
+                    default:
+                        sp6F = 0;
+                        break;
+                }
+
+                if (sp6F != 0) {
+                    gSPTextureRectangle(entry++, MAX((arg2 + sp6C) << 2, 0), MAX((arg3 + sp6A) << 2, 0),
+                                                            MAX((arg2 + sp6C + 0xB) << 2, 0), MAX((arg3 + sp6A + 9) << 2, 0), G_TX_RENDERTILE,
+                                                            -MIN((((arg2 + sp6C) << 2) << 0xA) >> 7, 0), -MIN((((arg3 + sp6A) << 2) << 0xA) >> 7, 0),
+                                                            qs510(1), qs510(1));
+                }
+            }
+        }
+
+        gDPPipeSync(entry++);
+        gDPSetPrimColor(entry++, 0, 0, 0xDC, 0xDC, 0xDC, arg4);
+
+        gSPTextureRectangle(entry++, MAX((arg2 + D_hd_code_80370C32 / 18 + 0x23) << 2, 0),
+                                                MAX((arg3 - D_hd_code_80370C33 / 18 + 0x28) << 2, 0),
+                                                MAX((arg2 + D_hd_code_80370C32 / 18 + 0x2E) << 2, 0),
+                                                MAX((arg3 - D_hd_code_80370C33 / 18 + 0x31) << 2, 0), G_TX_RENDERTILE,
+                                                -MIN((((arg2 + D_hd_code_80370C32 / 18 + 0x23) << 2) << 0xA) >> 7, 0),
+                                                -MIN((((arg3 - D_hd_code_80370C33 / 18 + 0x28) << 2) << 0xA) >> 7, 0), qs510(1), qs510(1));
+
+        gDPPipeSync(entry++);
+        gDPSetTexturePersp(entry++, G_TP_PERSP);
+    }
+
+    // @recomp
+    entry = hud2d_align_none(entry);
+    entry = hud_end(entry);
+    return entry;
 }
 
 // @recomp: white-out fade is not full-screen. fixed this by tagging this
