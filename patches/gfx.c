@@ -770,6 +770,81 @@ RECOMP_PATCH void func_hd_code_8025E67C(Gfx** arg0, struct FrameContext* arg1, u
     *arg0 = entry;
 }
 
+// @recomp: fade to black at the end of the fourth attract mode demo
+RECOMP_PATCH Gfx* func_hd_code_8025C878(Gfx* arg0, void* arg1, u8 arg2, s32* arg3) {
+    s32 sp6C;
+    u32 sp68;
+    Gfx* entry;
+    s32 sp60;
+
+    sp68 = sc.retraceCount;
+    entry = arg0;
+    if ((D_hd_code_802E8BF0 != 0) && g_currentGameState & 2) {
+        if (arg2 != 0) {
+            sp6C = D_hd_code_80366BA4;
+        } else {
+            sp6C = D_hd_code_80366BA4 + 0x3C0;
+        }
+        D_hd_code_80366BA8 = 0;
+        if (g_frameCount == 0) {
+            D_hd_code_80366A10 = 0;
+            D_hd_code_80366A11 = 0;
+        }
+        if (g_frameCount > D_hd_code_80366A04) {
+            if (sp68 < (u32) (D_hd_code_80366BBC + 0x78)) {
+                gEXMatrixGroupSkipAllAspect(entry++, TAG_FADE_SCREEN, G_EX_PUSH, G_MTX_PROJECTION, G_EX_EDIT_NONE,
+                                            G_EX_ASPECT_STRETCH); // @recomp: force stretching
+
+                gDPPipeSync(entry++);
+                gSPMatrix(entry++, &D_2000000.mtxOrtho, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+                gSPMatrix(entry++, &D_2000000.modelview, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gDPSetRenderMode(entry++, G_RM_CLD_SURF, G_RM_CLD_SURF2);
+                gDPSetCombineMode(entry++, G_CC_SHADE, G_CC_SHADE);
+                gSPSetGeometryMode(entry++, G_SHADE | G_SHADING_SMOOTH);
+                gSPTexture(entry++, qu016(0.999985), qu016(0.999985), 0, G_TX_RENDERTILE, G_OFF);
+                gSPVertex(entry++, OS_PHYSICAL_TO_K0(&D_hd_code_802FA8B0[arg2]), 4, 0);
+                gSP1Triangle(entry++, 0, 1, 2, 0);
+                gSP1Triangle(entry++, 0, 2, 3, 0);
+                gDPPipeSync(entry++);
+                gEXPopMatrixGroup(entry++, G_MTX_PROJECTION); // @recomp: pop transform
+
+                sp60 = 0;
+                do {
+                    D_hd_code_802FA8B0[arg2].v[sp60].v.cn[0] = 0;
+                    D_hd_code_802FA8B0[arg2].v[sp60].v.cn[1] = 0;
+                    D_hd_code_802FA8B0[arg2].v[sp60].v.cn[2] = 0;
+                    D_hd_code_802FA8B0[arg2].v[sp60].v.cn[3] = (sp68 - D_hd_code_80366BBC) * 2.125;
+                } while (++sp60 < 4);
+
+                gEXMatrixGroupDecomposedNormal(entry++, TAG_FADE_SCREEN + 1, G_EX_PUSH, G_MTX_PROJECTION, G_EX_EDIT_NONE); // @recomp: reset stretching
+                func_hd_code_8025E1E0(&entry);
+                gEXPopMatrixGroup(entry++, G_MTX_PROJECTION); // @recomp: pop transform
+            } else {
+                gDPPipeSync(entry++);
+                gSPClearGeometryMode(entry++, G_ZBUFFER | G_TEXTURE_ENABLE | G_SHADE | G_CULL_BOTH | G_FOG |
+                                                  G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR | G_LOD |
+                                                  G_SHADING_SMOOTH | 0xFFE0CDF8);
+                gDPSetRenderMode(entry++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
+                gDPSetCycleType(entry++, G_CYC_FILL);
+                gDPSetFillColor(entry++, 0x00010001);
+                gDPFillRectangle(entry++, 0, 0, 319, 239);
+                gDPPipeSync(entry++);
+                gDPSetCycleType(entry++, G_CYC_1CYCLE);
+                func_hd_code_8025E1E0(&entry);
+            }
+        } else {
+            if (D_hd_code_80366A04 == g_frameCount) {
+                D_hd_code_80366BBC = sp68;
+            }
+            func_hd_code_8025E1E0(&entry);
+        }
+    } else {
+        entry = func_hd_code_8025D2B4(entry, arg1, arg3);
+    }
+    *arg3 += (s32) (entry - arg0);
+    return entry;
+}
+
 extern u16 D_hd_code_802FA8A0[2];
 extern f32 D_hd_code_8036BFC0;
 extern u8 D_hd_code_8036BFC4;
