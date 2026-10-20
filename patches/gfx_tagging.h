@@ -21,3 +21,6 @@
 #define TAG_PROJECTILE(projectileIndex) (0x1600 | (projectileIndex))
 #define TAG_CREDITS 0x1700
 #define TAG_CAMERA 0x1800
+// index is 0-18
+#define TAG_VEHICLE_SELECT(index) (0x1900 | (index))
+#define TAG_VEHICLE_SELECT_CAMERA 0x1A00
