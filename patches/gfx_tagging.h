@@ -20,3 +20,4 @@
 #define TAG_BUILDING(id, reflect) (0x1500 | ((id)<<1) | (reflect))
 #define TAG_PROJECTILE(projectileIndex) (0x1600 | (projectileIndex))
 #define TAG_CREDITS 0x1700
+#define TAG_CAMERA 0x1800

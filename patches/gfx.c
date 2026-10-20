@@ -3,6 +3,7 @@
 #include "gfx_tagging.h"
 #include "gfx.h"
 #include "pillarbox_patches.h"
+#include "camera_patches.h"
 #include <PR/sched.h>
 #include <PR/gbi.h>
 #include <hd_code/macros.h>
@@ -171,6 +172,18 @@ RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
     gDPPipeSync(entry++);
 
     gSPLookAt(entry++, &D_2000000.lookAt);
+
+    // @recomp: skip camera interpolation if the camera jumped since the last frame
+    if (camera_update_interpolation()) {
+        gEXMatrixGroupSimple(entry++, TAG_CAMERA, G_EX_NOPUSH, G_MTX_PROJECTION, G_EX_COMPONENT_INTERPOLATE,
+                             G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_INTERPOLATE,
+                             G_EX_COMPONENT_INTERPOLATE, G_EX_ORDER_LINEAR, G_EX_EDIT_NONE, G_EX_COMPONENT_SKIP,
+                             G_EX_COMPONENT_INTERPOLATE);
+    } else {
+        gEXMatrixGroupSimple(entry++, TAG_CAMERA, G_EX_NOPUSH, G_MTX_PROJECTION, G_EX_COMPONENT_SKIP,
+                             G_EX_COMPONENT_SKIP, G_EX_COMPONENT_SKIP, G_EX_COMPONENT_SKIP, G_EX_COMPONENT_INTERPOLATE,
+                             G_EX_ORDER_LINEAR, G_EX_EDIT_NONE, G_EX_COMPONENT_SKIP, G_EX_COMPONENT_SKIP);
+    }
     gSPMatrix(entry++, &D_2000000.projection, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gSPMatrix(entry++, &D_2000000.projection2, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
     gSPMatrix(entry++, &D_2000000.modelview, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
