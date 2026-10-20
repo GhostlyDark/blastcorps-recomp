@@ -1200,10 +1200,10 @@ RECOMP_PATCH Gfx* func_hd_code_80271FD0(Gfx* arg0, struct FrameContext* arg1, u1
     D_hd_code_802FA820[D_hd_code_8036BFC5][3].v.ob[1] = (D_hd_code_8036BFCC * 4.0) - 1.0;
 
     // @recomp: calculate new skybox sizes
-    D_hd_code_802FA820[D_hd_code_8036BFC5][0].v.ob[0] = -offset * 1280;
-    D_hd_code_802FA820[D_hd_code_8036BFC5][1].v.ob[0] = 1280 + offset * 1280;
-    D_hd_code_802FA820[D_hd_code_8036BFC5][2].v.ob[0] = -offset * 1280.0f;
-    D_hd_code_802FA820[D_hd_code_8036BFC5][3].v.ob[0] = 1280 + offset * 1280;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][0].v.ob[0] = 1280 + offset * 1280;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][1].v.ob[0] = -offset * 1280;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][2].v.ob[0] = 1280 + offset * 1280;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][3].v.ob[0] = -offset * 1280;
 
 
     gSPClearGeometryMode(entry++, -1);
@@ -1252,10 +1252,10 @@ RECOMP_PATCH Gfx* func_hd_code_80271FD0(Gfx* arg0, struct FrameContext* arg1, u1
                    G_EX_COMPONENT_INTERPOLATE, G_EX_COMPONENT_SKIP);
 
     // @recomp: adapt texture size in width
-    D_hd_code_802FA820[D_hd_code_8036BFC5][0].v.tc[0] = (sp68 - offset * 320) * 32.0;
-    D_hd_code_802FA820[D_hd_code_8036BFC5][1].v.tc[0] = (sp68 + sp60 + offset * 320) * 32.0;
-    D_hd_code_802FA820[D_hd_code_8036BFC5][2].v.tc[0] = (sp68 - offset * 320) * 32.0;
-    D_hd_code_802FA820[D_hd_code_8036BFC5][3].v.tc[0] = (sp68 + sp60 + offset * 320) * 32.0;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][0].v.tc[0] = (sp68 - offset * sp60) * 32.0;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][1].v.tc[0] = (sp68 + sp60 + offset * sp60) * 32.0;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][2].v.tc[0] = (sp68 - offset * sp60) * 32.0;
+    D_hd_code_802FA820[D_hd_code_8036BFC5][3].v.tc[0] = (sp68 + sp60 + offset * sp60) * 32.0;
 
     sp64 = ((D_hd_code_8036BFCC - D_hd_code_8036BFC0) - D_hd_code_8036BFD0) / (f32) (1 << sp70->unk9);
     sp5C = (f32) (((f64) D_hd_code_8036BFCC - 1.0) / (f64) (f32) (1 << sp70->unk9));
