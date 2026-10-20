@@ -64,7 +64,7 @@ RECOMP_PATCH void func_hd_front_end_801F57B0(void) {
     osStartThread(&D_hd_front_end_80218D30);
 }
 
-// Since we named osPiRawStartDma inside the init portion of the rom InitosPiRawStartDma, we're just patching it its
+// Since we named osPiRawStartDma inside the init portion of the rom _osPiRawStartDma, we're just patching its
 // output here and redirecting its args to boot_osPiRawStartDma
 RECOMP_PATCH s32 _osPiRawStartDma(s32 direction, u32 devAddr, void* dramAddr, u32 size) {
     // recomp_printf("osPiRawStartDma: direction %d, devAddr: %x, dramAddr %x, size: %x \n",

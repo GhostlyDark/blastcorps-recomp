@@ -49,10 +49,7 @@ void pillarbox_draw(Gfx** gfx) {
     if (pillar_width >= 0.0f) {
         gEXEnable((*gfx)++);
         // @recomp Use a high precision version of the projection matrix instead of the fixed precision one. This fixes
-        // accuracy issues when rendering text using the orthographic projection. A small Epsilon is required to give
-        // some room to the text to render, as it's placed on the very edge of the far plane. Higher precision causes
-        // the text to disappear otherwise.
-        const float Epsilon = 1e-2f;
+        // accuracy issues when rendering text using the orthographic projection.
         guOrthoF(*mtx, -(2 * (f32) DEFAULT_FRAMEBUFFER_WIDTH), (2 * (f32) DEFAULT_FRAMEBUFFER_WIDTH),
                  -(2 * (f32) DEFAULT_FRAMEBUFFER_HEIGHT), (2 * (f32) DEFAULT_FRAMEBUFFER_HEIGHT), -256.0f, 256.0f,
                  1.0f);
