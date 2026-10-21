@@ -13,18 +13,14 @@ Join the [N64: Recompiled Community Discord](https://discord.gg/AWZThJ4dPf) to d
 * [System Requirements](#system-requirements)
 * [Features](#features)
   * [Plug and Play](#plug-and-play)
-  * [Fully Intact N64 Effects](#fully-intact-n64-effects)
   * [Faithful Audio](#faithful-audio)
   * [Easy-to-Use Menus](#easy-to-use-menus)
   * [High Framerate Support](#high-framerate-support)
   * [Widescreen and Ultrawide Support](#widescreen-and-ultrawide-support)
   * [Mod Support](#mod-support)
-  * [Dual Analog Camera](#dual-analog-camera)
-  * [Note Saving](#note-saving)
   * [Low Input Lag](#low-input-lag)
   * [Instant Load Times](#instant-load-times)
   * [Linux and Steam Deck Support](#linux-and-steam-deck-support)
-* [Planned Features](#planned-features)
 * [FAQ](#faq)
 * [Known Issues](#known-issues)
 * [Building](#building)
@@ -75,9 +71,6 @@ Saving and loading files, going from place to place, and pausing all happen in t
 A Linux binary as well as a Flatpak is available for playing on most up-to-date distros, including on the Steam Deck.
 
 To play on Steam Deck, extract the Linux build onto your deck. Then, in desktop mode, right click the BlastcorpsRecompiled executable file and select "Add to Steam". From there, you can return to Gaming mode and configure the controls as needed.
-
-## Planned Features
-* Ray Tracing via RT64
 
 ## FAQ
 

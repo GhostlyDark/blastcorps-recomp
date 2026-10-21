@@ -40,20 +40,20 @@ You will need to decompress the NTSC-U 1.1 N64 BlastCorps ROM (sha1: 483f7161aea
 
 If your ROM isn't in .z64 format, you can byte-swap it using the [N64 ROM Byte Swapper](https://hack64.net/tools/swapper.php)
 
-The most straightforward way to do this is to use the [Extreme-G decompression tool](https://gitlab.com/sonicdcer/ExtremeGRecomp/-/blob/main/tools/decompress_rom.py) directly, which is what the decompilation uses to decompress the ROM.
+The most straightforward way to do this is to use the decompression tool in tools/decompress_rom.py directly.
 
-cd into ./tools, place a us retail rom of Extreme-G and name it extremeg.us.z64
+cd into ./tools, place a us retail rom of BlastCorps and name it baserom.us.v11.z64
 run this command:
-python3 ./decompress_rom.py extremeg.us.z64 extremeg.us.uncompressed.z64
+python3 ./decompress_rom.py baserom.us.v11.z64 baserom.us.v11.decompressed.z64
 
-Alternatively, you can do this is by setting up the [Extreme-G decompilation](https://gitlab.com/banjo.decomp/Extreme-G) project, which will decompress the ROM when building, the resulting decompressed rom will be named baserom.us.decompressed.z64. 
+Alternatively, you can do this is by setting up the [BlastCorps decompilation](https://github.com/SlaveOfIDO/blastcorps) project, which will decompress the ROM when building, the resulting decompressed rom will be named baserom.us.decompressed.z64. 
 
-Regardless of which method you use, copy the decompressed ROM to the root of the ExtremeGRecomp repository with this filename:
-- `extremeg.us.uncompressed.z64`
+Regardless of which method you use, copy the decompressed ROM to the root of this repository with this filename:
+- `baserom.us.v11.decompressed.z64`
 
 ## 4. Generating the C code
 
-Now that you have the required files, you must build this fork and branch of [N64Recomp](https://gitlab.com/sonicdcer/N64Recomp/-/tree/extreme-g) and run it to generate the C code to be compiled. The building instructions can be found [here](https://gitlab.com/sonicdcer/N64Recomp?tab=readme-ov-file#building). That will build the executables: `N64Recomp` and `RSPRecomp` which you should copy to the root of the ExtremeGRecomp repository.
+Now that you have the required files, you must build [N64Recomp](https://github.com/N64Recomp/N64Recomp) and run it to generate the C code to be compiled. The building instructions can be found [here](https://github.com/N64Recomp/N64Recomp?tab=readme-ov-file#building). That will build the executables: `N64Recomp` and `RSPRecomp` which you should copy to the root of the ExtremeGRecomp repository.
 
 After that, go back to the repository root, and run the following commands:
 ```bash
