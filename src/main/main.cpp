@@ -47,6 +47,7 @@
 #include "librecomp/game.hpp"
 #include "librecomp/mods.hpp"
 #include "librecomp/helpers.hpp"
+#include "librecomp/overlays.hpp"
 
 #include "../../patches/graphics.h"
 #include "../../patches/input.h"
@@ -384,6 +385,13 @@ RspUcodeFunc* get_rsp_microcode(const OSTask* task) {
 extern "C" void recomp_entrypoint(uint8_t * rdram, recomp_context * ctx);
 gpr get_entrypoint_address();
 
+extern "C" void rmonPrintf_recomp(uint8_t* rdram, recomp_context* ctx);
+
+void on_game_init(uint8_t* /* rdram */, recomp_context* /* ctx */) {
+    // Needed for mods with hooks to be supported
+    recomp::overlays::add_loaded_function(0x8029A7E4, rmonPrintf_recomp);
+}
+
 // array of supported GameEntry objects
 std::vector<recomp::GameEntry> supported_games = {
     {
@@ -399,6 +407,7 @@ std::vector<recomp::GameEntry> supported_games = {
         .has_compressed_code = true,
         .entrypoint_address = get_entrypoint_address(),
         .entrypoint = recomp_entrypoint,
+        .on_init_callback = on_game_init,
     },
 };
 
