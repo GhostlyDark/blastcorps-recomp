@@ -4,6 +4,7 @@
 #define VEHICLE_ID_SIDESWIPE 1
 #define VEHICLE_ID_SKYFALL 3
 #define VEHICLE_ID_TRUCK 5
+#define VEHICLE_ID_BALLISTA 10
 
 /*
 Vehicle ids:
@@ -14,7 +15,7 @@ Vehicle ids:
 - Backlash: 5 (has wheel patch)
 - Train: 7
 - J-Bomb: 9
-- Ballista: 10
+- Ballista: 10 (has wheel patch)
 - Police Car: 13
 - Cyclone Suit: 16
 
@@ -71,6 +72,11 @@ static const WheelDesc sSideswipeWheels[] = {
     { 0x180, { { 0x19B0, 86 }, { 0x3D60, 86 } } }, // rear axle wheels, joint matrix 0x580
 };
 
+static const WheelDesc sBallistaWheels[] = {
+    { 0x100, { { 0x7C0, 52 }, { 0x1940, 52 } } }, // rear wheel, joint matrix 0x4C0
+    { 0x280, { { 0xC60, 52 }, { 0x1DE0, 52 } } }, // front wheel, joint matrix 0x580
+};
+
 static void recenterWheel(VehicleData* data, const WheelDesc* wheel) {
     VehicleMtxTable* mtxTable = (VehicleMtxTable*) ((u8*) data + data->mtxTableOffset);
     FixedMtx* mtx = &mtxTable->mtx[wheel->baseMtxOffset / sizeof(FixedMtx)];
@@ -120,6 +126,9 @@ void patchVehicle(u32 vehicleId, VehicleData* data) {
             break;
         case VEHICLE_ID_TRUCK:
             recenterWheels(data, sTruckWheels, sizeof(sTruckWheels) / sizeof(sTruckWheels[0]));
+            break;
+        case VEHICLE_ID_BALLISTA:
+            recenterWheels(data, sBallistaWheels, sizeof(sBallistaWheels) / sizeof(sBallistaWheels[0]));
             break;
         default:
             break;
