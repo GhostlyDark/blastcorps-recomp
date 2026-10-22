@@ -1763,10 +1763,26 @@ extern f32 D_hd_front_end_80217B58;
 extern f32 D_hd_front_end_80217B5C;
 extern Mtx D_hd_front_end_80217B70[7][4];
 extern S_80218270 D_hd_front_end_80218270[];
+extern struct S_8020BD30 D_hd_front_end_8020BE98;
+extern f32 D_hd_front_end_80217A10[5][4][4];
+extern s32 D_hd_front_end_80217B50;
+extern f32 D_hd_front_end_80217B60;
+extern f32 D_hd_front_end_80217B64;
+extern f32 D_hd_front_end_80217B68;
+extern s32 D_hd_front_end_80217B6C;
+extern s16 D_hd_front_end_802182A8;
+
 
 Gfx* func_hd_front_end_801FE238(Gfx*, struct FrameContext*);
+void func_hd_front_end_801F374C(struct S_8020BD30*);
+s32 func_hd_front_end_801F36B0(s32* arg0, s32* arg1);
+void func_hd_code_802595E0(S_80218270*, s32, s32, void*);
 Gfx* func_hd_front_end_801F4110(Gfx* gfx, struct FrameContext* arg1, struct S_8020BD30* arg2, f32 arg3);
 Gfx* func_hd_front_end_801F3964(Gfx* gfx, struct FrameContext* arg1, struct S_8020BD30* arg2, f32 arg3);
+
+Mtx sEarthView[2];  // @recomp: look at from (eye - target) to the origin
+Mtx sEarthShift[2]; // @recomp: translation by -target
+
 
 RECOMP_PATCH void func_hd_front_end_801F4878(Gfx* gfx, struct FrameContext* arg1) {
     Gfx* entry = gfx;
@@ -1803,8 +1819,10 @@ RECOMP_PATCH void func_hd_front_end_801F4878(Gfx* gfx, struct FrameContext* arg1
             case 3:
 
                 gSPMatrix(entry++, &arg1->projection, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-                gSPMatrix(entry++, &arg1->projection2, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-                gSPMatrix(entry++, &sp5C[D_hd_code_8035805C], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+                // @recomp: earth centered view
+                gSPMatrix(entry++, &sEarthView[D_hd_code_8035805C], G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH); // @recomp: applies rotation
+                gSPMatrix(entry++, &sEarthShift[D_hd_code_8035805C], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH); // @recomp: reverts translation
+                gSPMatrix(entry++, &sp5C[D_hd_code_8035805C], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH); // @recomp: applies translation (cancels out with before)
                 gSPMatrix(entry++, &sp5C[D_hd_code_8035805C + 2], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
                 gSPMatrix(entry++, &arg1->unk1280, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
                 entry = func_hd_front_end_801FE238(entry, arg1);
@@ -1827,6 +1845,59 @@ RECOMP_PATCH void func_hd_front_end_801F4878(Gfx* gfx, struct FrameContext* arg1
 
         gSPEndDisplayList(entry++);
     }
+}
+
+// Renders the planet
+RECOMP_PATCH Gfx* func_hd_front_end_801F3450(Gfx* gfx, struct FrameContext* arg1) {
+    Gfx* entry = gfx;
+    struct S_8020BD30* sp48 = &D_hd_front_end_8020BD30;
+    struct S_8020BD30* sp44 =
+        &D_hd_front_end_8020BD30 + (((s32) D_hd_front_end_80217B6C * 0x3C + (s32) sp48) - (s32) sp48) / 0x3C;
+    u8 sp43;
+    s32 sp3C;
+
+    gSPPerspNormalize(entry++, D_hd_code_8035807C);
+    D_hd_front_end_80217B50 = 4;
+    guMtxIdentF(D_hd_front_end_80217A10[4]);
+    func_hd_front_end_801F374C(&D_hd_front_end_8020BE98);
+    if (D_hd_front_end_802182A8 != 1) {
+        D_hd_front_end_80217B54 = sp44->unk2C;
+        D_hd_front_end_80217B58 = sp44->unk30;
+        D_hd_front_end_80217B5C = sp44->unk34;
+        D_hd_front_end_80217B60 = sp44->unk20;
+        D_hd_front_end_80217B64 = sp44->unk24;
+        D_hd_front_end_80217B68 = sp44->unk28;
+    }
+    guLookAt(&arg1->projection2, D_hd_front_end_80217B54 + 1.0f, D_hd_front_end_80217B58, D_hd_front_end_80217B5C,
+             D_hd_front_end_80217B60, D_hd_front_end_80217B64, D_hd_front_end_80217B68, 0.0f, 1.0f, 0.0f);
+
+    // D_hd_front_end_80217B54 -> g_planetCameraEyeX
+    // D_hd_front_end_80217B58 -> g_planetCameraEyeY
+    // D_hd_front_end_80217B5C -> g_planetCameraEyeZ
+    // D_hd_front_end_80217B60 -> g_planetCameraTargetX
+    // D_hd_front_end_80217B64 -> g_planetCameraTargetY
+    // D_hd_front_end_80217B68 -> g_planetCameraTargetZ
+
+    // @recomp: look at the planet in the center
+    guLookAt(&sEarthView[D_hd_code_8035805C], D_hd_front_end_80217B54 + 1.0f - D_hd_front_end_80217B60,
+             D_hd_front_end_80217B58 - D_hd_front_end_80217B64, D_hd_front_end_80217B5C - D_hd_front_end_80217B68, 0.0f,
+             0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+
+    // @recomp: put the planet back to the center
+    guTranslate(&sEarthShift[D_hd_code_8035805C], -D_hd_front_end_80217B60, -D_hd_front_end_80217B64,
+                -D_hd_front_end_80217B68);
+
+    func_hd_front_end_801F4878(&arg1->unkACB0[0], arg1);
+    func_hd_code_802595E0(D_hd_front_end_80218270, 7, 8, &func_hd_front_end_801F36B0);
+    for (sp3C = 0, sp43 = 0; sp3C < 7; sp3C++) {
+        if ((sp43 == 0) || (D_hd_front_end_80217B6C != 3)) {
+            gSPDisplayList(entry++, D_hd_front_end_80218270[sp3C].unk4);
+        }
+        if (D_hd_front_end_80218270[sp3C].unk0 == 3) {
+            sp43 = 1;
+        }
+    }
+    return entry;
 }
 
 #endif
@@ -2055,8 +2126,10 @@ RECOMP_PATCH Gfx* func_hd_front_end_801F9820(Gfx* gfx, struct FrameContext* arg1
     gEXMatrixGroupDecomposedNormal(entry++, TAG_PLANET_LINES, G_EX_PUSH, G_MTX_MODELVIEW, G_EX_EDIT_NONE);
 
     gSPMatrix(entry++, &arg1->projection, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPMatrix(entry++, &arg1->projection2, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-    gSPMatrix(entry++, &D_hd_front_end_80217B70[3][D_hd_code_8035805C], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    // @recomp: earth centered view
+    gSPMatrix(entry++, &sEarthView[D_hd_code_8035805C], G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPMatrix(entry++, &sEarthShift[D_hd_code_8035805C], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(entry++, &D_hd_front_end_80217B70[3][D_hd_code_8035805C], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(entry++, &D_hd_front_end_80217B70[3][D_hd_code_8035805C + 2], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(entry++, &arg1->unk1280, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
     entry = func_hd_front_end_801FA180(entry, arg1, D_hd_front_end_8020E3D8, &D_hd_front_end_8021A907);
@@ -2065,6 +2138,77 @@ RECOMP_PATCH Gfx* func_hd_front_end_801F9820(Gfx* gfx, struct FrameContext* arg1
     gEXPopMatrixGroup(entry++, G_MTX_MODELVIEW);
 
     gSPEndDisplayList(entry++);
+    *arg2 = (s32) ((s32) entry - (s32) gfx) >> 3;
+    return entry;
+}
+
+extern u8 D_hd_front_end_8021A904;
+extern u8 D_hd_front_end_8021A905;
+extern u8 D_hd_front_end_8021AB21;
+extern f32 D_hd_front_end_8021AB40;
+extern f32 D_hd_front_end_8021AB44;
+extern f32 D_hd_front_end_8021AB48;
+extern s32 D_hd_code_802FA264;
+
+Gfx* func_hd_front_end_801FC5B8(struct FrameContext*, Gfx*, u8, u8);
+void func_hd_front_end_801FDE98(void);
+
+// @recomp: draw the level markers with the earth centered view
+RECOMP_PATCH Gfx* func_hd_front_end_801F9B84(Gfx* gfx, struct FrameContext* arg1, s32* arg2) {
+    Gfx* entry = gfx;
+    gSPSegment(entry++, 0, 0x00000000);
+    gSPSegment(entry++, 2, osVirtualToPhysical(arg1));
+    gSPSegment(entry++, 1, osVirtualToPhysical(D_hd_code_8035806C));
+    gSPDisplayList(entry++, D_1000010);
+    gSPDisplayList(entry++, D_1000038);
+    gDPSetColorImage(entry++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, D_hd_code_80358050[D_hd_code_8035805C]);
+    gDPSetDepthImage(entry++, D_hd_code_80358058);
+    gDPSetRenderMode(entry++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gSPTexture(entry++, 0x8000, 0x8000, 0, 0, G_ON);
+    gDPSetPrimColor(entry++, 0, 0, 0, 0, 0, D_hd_front_end_8021AB21);
+    gDPSetCombineLERP(entry++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
+    gSPPerspNormalize(entry++, D_hd_code_8035807C);
+    gSPMatrix(entry++, &arg1->projection, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    // @recomp: earth centered view
+    gSPMatrix(entry++, &sEarthView[D_hd_code_8035805C], G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPMatrix(entry++, &sEarthShift[D_hd_code_8035805C], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(entry++, &D_hd_front_end_80217B70[3][D_hd_code_8035805C], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPMatrix(entry++, &D_hd_front_end_80217B70[3][D_hd_code_8035805C + 2], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPMatrix(entry++, &arg1->unk1280, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+    entry = func_hd_front_end_801FC5B8(arg1, entry, (u8) D_hd_front_end_8021A904, D_hd_front_end_8021A905);
+    func_hd_front_end_801FDE98();
+    entry = func_hd_code_80274BF0(&arg1[D_hd_code_8035805C], entry);
+    gDPFullSync(entry++);
+    gSPEndDisplayList(entry++);
+    if (D_hd_code_802FA264 != 0) {
+        if (g_currentButtons & U_JPAD) {
+            D_hd_front_end_8021AB40 = (f32) ((f64) D_hd_front_end_8021AB40 + 0.01);
+        }
+        if (g_currentButtons & D_JPAD) {
+            D_hd_front_end_8021AB40 = (f32) ((f64) D_hd_front_end_8021AB40 - 0.01);
+        }
+        if (g_currentButtons & (U_JPAD | D_JPAD)) {
+            rmonPrintf("angd %f\n", D_hd_front_end_8021AB40);
+        }
+        if (g_currentButtons & R_JPAD) {
+            D_hd_front_end_8021AB44 = (f32) ((f64) D_hd_front_end_8021AB44 + 0.001);
+        }
+        if (g_currentButtons & L_JPAD) {
+            D_hd_front_end_8021AB44 = (f32) ((f64) D_hd_front_end_8021AB44 - 0.001);
+        }
+        if (g_currentButtons & (L_JPAD | R_JPAD)) {
+            rmonPrintf("dmm %f\n", D_hd_front_end_8021AB44);
+        }
+        if (g_currentButtons & R_TRIG) {
+            D_hd_front_end_8021AB48 += 100.0f;
+        }
+        if (g_currentButtons & L_TRIG) {
+            D_hd_front_end_8021AB48 -= 100.0f;
+        }
+        if (g_currentButtons & (L_TRIG | R_TRIG)) {
+            rmonPrintf("mmm %f\n", D_hd_front_end_8021AB48);
+        }
+    }
     *arg2 = (s32) ((s32) entry - (s32) gfx) >> 3;
     return entry;
 }
