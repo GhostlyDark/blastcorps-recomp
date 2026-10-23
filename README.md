@@ -1,7 +1,12 @@
 # BlastCorps: Recompiled
-BlastCorps: Recompiled is a project that uses [N64: Recompiled](https://github.com/N64Recomp/N64Recomp) to **statically recompile** BlastCorps into a native port with many new features, enhancements, and extensive mod support. This project uses [RT64](https://github.com/rt64/rt64) as the rendering engine to provide graphical enhancements.
+BlastCorps: Recompiled is a project that uses [N64: Recompiled](https://github.com/N64Recomp/N64Recomp) to **statically recompile** BlastCorps into a native port with many new features, enhancements, and extensive mod support. 
+
+This project uses [RT64](https://github.com/rt64/rt64) as the rendering engine to provide graphical enhancements.
+
+> [!NOTE]
+> No Gen-AI was used in this project. No contributions will be accepted that were made with Gen-AI.
  
-### [Check out the latest release here](https://github.com/SlaveOfIDO/blastcorps-recomp/-/releases).
+### [Check out the latest release here](https://github.com/SlaveOfIDO/blastcorps-recomp/releases).
 
 Join the [N64: Recompiled Community Discord](https://discord.gg/AWZThJ4dPf) to discuss this and other N64: Recompiled projects!
 
