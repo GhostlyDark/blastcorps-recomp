@@ -23,7 +23,6 @@ void __scRspDone(OSSched*);
 void __scRdpDone(OSSched*);
 void __scAppendList(OSSched*, OSScTask*); /* extern */
 s32 __scSendMesg(OSMesgQueue* messageQueue, OSMesg message, s32 flags); /* extern */
-void yield_self(void);
 
 extern s32 D_hd_code_8036BF10;
 extern u32 D_hd_code_8036BFB8;
@@ -56,12 +55,6 @@ typedef struct AudioManager_s {
 
 extern AudioManager g_AudioManager;
 
-
-
-static bool sGfxTaskPending = 0;
-
-// @recomp: osGetTime()/osGetCount() counts at 46875000 ticks/sec
-#define OS_COUNTS_PER_SEC 46875000U //
 RECOMP_PATCH void __scRetraceDone(OSSched* scheduler) {
     OSScTask* rspTask;
     OSScClient* client;
@@ -135,11 +128,12 @@ RECOMP_PATCH void __scMain(void* params) {
                     D_hd_code_8036BEF8 = D_hd_code_8036BF00;
                     D_hd_code_8036BF08 = D_hd_code_8036BF0C;
                 }
-                if (sPendingDpDone > 0) {
-                    sPendingDpDone--;
+                // @recomp: retrace first so it can clear the freeze, then handle the held back RDP done
+                __scRetraceDone(scheduler);
+                if (sPendingDpDone && !(osDpGetStatus() & DPC_STATUS_FREEZE)) {
+                    sPendingDpDone = 0;
                     __scRdpDone(scheduler);
                 }
-                __scRetraceDone(scheduler);
 
                 // @recomp: For every second retrace we tell the audio thread to prepare an audio task
                 if (sAudioFrame % 2 == 0) {
@@ -161,7 +155,12 @@ RECOMP_PATCH void __scMain(void* params) {
                 __scRspDone(scheduler);
                 break;
             case RDP_DONE_MSG:
-                sPendingDpDone++;
+                // @recomp: the runtime doesn't honor DPC_SET_FREEZE, hold the RDP done while frozen
+                if (osDpGetStatus() & DPC_STATUS_FREEZE) {
+                    sPendingDpDone = 1;
+                } else {
+                    __scRdpDone(scheduler);
+                }
                 break;
             case 5:
                 osSendMesg(D_hd_code_8036BF78.mq, D_hd_code_8036BF78.msg, 1);
@@ -203,50 +202,6 @@ extern void* g_gfxMicrocodeText[6];
 extern void* g_gfxMicrocodeData[5];
 extern u64 D_hd_code_80367750;
 extern u64 D_hd_code_8036AFB0;
-
-#if 1
-
-static u32 sLastMainGfxWaited = 0;
-static void gfxThrottle() {
-    if (!sGfxTaskPending) {
-        // Only apply throttling if we wait for the main task
-        return;
-    }
-
-    if (g_currentGameState & 0xC9FD0FE79BFF80B0) {
-        // targetFps = 60;
-        //  TODO: Is this the right approach?
-        return;
-    }
-    // @recomp: block here until at least 1/30s has passed since the last completed
-    // gfx task, capping the render rate at 30fps on modern hardware. This is not done
-    // when the nintendo or rare logo is rendered. This renders much faster on the N64 than the game
-
-    u32 targetFps = 35;
-
-    while ((u32)osGetCount() - (u32)sLastMainGfxWaited < (OS_COUNTS_PER_SEC / targetFps)) {
-        yield_self();
-    }
-    sLastMainGfxWaited = osGetCount();
-    sGfxTaskPending = 0;
-}
-
-RECOMP_PATCH void gfxWaitForTask(u32 arg0) {
-    u32 sp1C;
-
-    do {
-        osRecvMesg(&D_hd_code_803153D8, (OSMesg) &sp1C, 1);
-        g_gfxTaskSlotUsed[sp1C >> 16] = 0;
-        sp1C &= 0xFFFF;
-
-        gfxThrottle();
-
-        if (sp1C != arg0) {
-            rmonPrintf("Task %d received message %d\n", arg0, sp1C);
-        }
-    } while (sp1C != arg0);
-}
-#endif
 
 RECOMP_PATCH void gfxSubmitTask(Gfx* displayList, s32 displayListEntries, u8 arg2, s32 arg3, s32 gfxTaskId, s32 arg5) {
     // @recomp: if displayList contains special marker word, use extended dl instead
@@ -292,9 +247,6 @@ RECOMP_PATCH void gfxSubmitTask(Gfx* displayList, s32 displayListEntries, u8 arg
     }
     gfxTask->framebuffer = D_80000400[D_hd_code_8035805C];
     gfxTask->client = &g_gfxClient;
-
-    // @recomp: gfx task is pending. apply fps limiter
-    sGfxTaskPending = 1;
 
     // @recomp: removed osWritebackDCache calls
     osSendMesg(&sc.interruptQ, gfxTask, OS_MESG_BLOCK);
