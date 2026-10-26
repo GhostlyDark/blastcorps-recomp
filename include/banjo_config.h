@@ -9,7 +9,7 @@
 
 namespace banjo {
     inline const std::u8string program_id = u8"BlastCorpsRecompiled";
-    inline const std::string program_name = "BlastCorps: Recompiled";
+    inline const std::string program_name = "Blast Corps: Recompiled";
 
     namespace configkeys {
         namespace general {

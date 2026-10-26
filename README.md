@@ -1,5 +1,5 @@
-# BlastCorps: Recompiled
-BlastCorps: Recompiled is a project that uses [N64: Recompiled](https://github.com/N64Recomp/N64Recomp) to **statically recompile** BlastCorps into a native port with many new features, enhancements, and extensive mod support. 
+# Blast Corps: Recompiled
+Blast Corps: Recompiled is a project that uses [N64: Recompiled](https://github.com/N64Recomp/N64Recomp) to **statically recompile** BlastCorps into a native port with many new features, enhancements, and extensive mod support. 
 
 This project uses [RT64](https://github.com/rt64/rt64) as the rendering engine to provide graphical enhancements.
 

@@ -68,7 +68,7 @@ void banjo::launcher_animation_setup(recompui::LauncherMenu *menu) {
 
     menu->remove_default_title();
 
-    recompui::Label* title_label = context.create_element<recompui::Label>(background_container, "BLASTCORPS",
+    recompui::Label* title_label = context.create_element<recompui::Label>(background_container, "BLAST CORPS",
                                                                            recompui::theme::Typography::Header1);
     title_label->set_position(recompui::Position::Absolute);
     title_label->set_top(200.0f);

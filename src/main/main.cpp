@@ -181,7 +181,7 @@ ultramodern::renderer::WindowHandle create_window(ultramodern::gfx_callbacks_t::
     flags |= SDL_WINDOW_VULKAN;
 #endif
 
-    window = SDL_CreateWindow("BlastCorps: Recompiled", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1600, 900,  flags);
+    window = SDL_CreateWindow("Blast Corps: Recompiled", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1600, 900,  flags);
 
     if (window == nullptr) {
         exit_error("Failed to create window: %s\n", SDL_GetError());
@@ -397,7 +397,7 @@ std::vector<recomp::GameEntry> supported_games = {
     {
         .rom_hash = 0xd30bc8bd3ec41ee4ULL,
         .internal_name = "BlastCorps",
-        .display_name = "BlastCorps: Recompiled",
+        .display_name = "Blast Corps: Recompiled",
         .game_id = u8"bc.n64.us",
         .mod_game_id = "bc",
         .save_type = recomp::SaveType::Eep4k,
