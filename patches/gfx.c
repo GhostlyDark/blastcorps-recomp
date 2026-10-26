@@ -2052,14 +2052,18 @@ RECOMP_PATCH void func_hd_code_80258544(struct Texture* arg0, s32 arg1, s32 arg2
     gSPSegment(entry++, 0x06, VIRTUAL_TO_PHYSICAL(arg6));
     gSPSegment(entry++, 0x07, VIRTUAL_TO_PHYSICAL(arg7));
     gDPPipeSync(entry++);
-    gDPSetScissor(entry++, G_SC_NON_INTERLACE, 0, 0, 63, 63);
+    // @recomp: extend scissor
+    gDPSetScissor(entry++, G_SC_NON_INTERLACE, 0, 0, 64, 64);
     gDPSetPrimColor(entry++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     gDPSetColorDither(entry++, G_CD_DISABLE);
     gDPSetCycleType(entry++, G_CYC_FILL);
     gDPSetColorImage(entry++, G_IM_FMT_CI, G_IM_SIZ_8b, 64, VIRTUAL_TO_PHYSICAL(arg0));
     gDPSetFillColor(entry++, 0x00010001);
-    gDPFillRectangle(entry++, 0, 0, 63, 63);
+    // @recomp: extend rectangle
+    gDPFillRectangle(entry++, 0, 0, 64, 64);
     gDPPipeSync(entry++);
+    // @recomp: restore original scissor
+    gDPSetScissor(entry++, G_SC_NON_INTERLACE, 0, 0, 63, 63);
     gDPSetCycleType(entry++, G_CYC_1CYCLE);
     gDPSetRenderMode(entry++, G_RM_OPA_CI, G_RM_OPA_CI2);
     gDPSetCombineMode(entry++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
