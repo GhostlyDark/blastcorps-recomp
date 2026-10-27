@@ -408,11 +408,3 @@ target_sources(BlastCorpsRecompiled PRIVATE ${GENERATED_NRM_SOURCES})
 target_sources(BlastCorpsRecompiled PRIVATE ${SOURCES})
 
 set_property(TARGET BlastCorpsRecompiled PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
-
-add_custom_command(
-    TARGET BlastCorpsRecompiled
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_SOURCE_DIR}/assets"
-            "$<TARGET_FILE_DIR:BlastCorpsRecompiled>/assets"
-)
