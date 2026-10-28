@@ -15,6 +15,7 @@
 #include "ultramodern/ultramodern.hpp"
 #include "ultramodern/config.hpp"
 #include "../lib/N64ModernRuntime/thirdparty/xxHash/xxh3.h"
+#include "recompui/config.h"
 
 extern "C" void recomp_syscall_handler(uint8_t* rdram, recomp_context* ctx, int32_t instruction_vram) { /* stub */ }
 extern "C" void _osInvalICache(uint8_t* rdram, recomp_context* ctx) { /* stub */ }
@@ -335,4 +336,16 @@ extern "C" void recomp_xxh3(uint8_t* rdram, recomp_context* ctx) {
     
     ctx->r2 = (int32_t)(ret >> 32);
     ctx->r3 = (int32_t)(ret >> 0);
+}
+
+extern "C" void recomp_start_rumble(uint8_t* rdram, recomp_context* ctx) {
+    // do not start rumble when strength is too low
+    if (recompui::config::general::get_rumble_strength() < 0.05) {
+        return;
+    }
+    recompinput::set_rumble(0, true);
+}
+
+extern "C" void recomp_stop_rumble(uint8_t* rdram, recomp_context* ctx) {
+    recompinput::set_rumble(0, false);
 }

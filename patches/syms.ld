@@ -72,3 +72,5 @@ osEepromLongWrite_recomp = 0x8F000248;
 osEepromLongRead_recomp = 0x8F00024C;
 osEepromWrite_recomp = 0x8F000250;
 osEepromRead_recomp = 0x8F000254;
+recomp_start_rumble = 0x8F000258;
+recomp_stop_rumble = 0x8F00025C;
