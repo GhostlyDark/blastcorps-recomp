@@ -7,7 +7,7 @@
 #include <optional>
 #include <list>
 
-namespace banjo {
+namespace blast {
     std::filesystem::path get_program_path();
     std::filesystem::path get_asset_path(const char* asset);
     void open_file_dialog(std::function<void(bool success, const std::filesystem::path& path)> callback);

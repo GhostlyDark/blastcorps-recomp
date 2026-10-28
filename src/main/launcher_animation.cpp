@@ -52,7 +52,7 @@ namespace {
     }
 }
 
-void banjo::launcher_animation_setup(recompui::LauncherMenu *menu) {
+void blast::launcher_animation_setup(recompui::LauncherMenu *menu) {
     auto context = recompui::get_current_context();
     recompui::Element *background_container = menu->get_background_container();
     background_container->set_background_color({ 0x46, 0x46, 0x46, 0xFF });
@@ -88,5 +88,5 @@ void banjo::launcher_animation_setup(recompui::LauncherMenu *menu) {
     subtitle_label->set_color({ 0xFF, 0xFF, 0xFF, 0xFF });
 }
 
-void banjo::launcher_animation_update(recompui::LauncherMenu *menu) {
+void blast::launcher_animation_update(recompui::LauncherMenu *menu) {
 }

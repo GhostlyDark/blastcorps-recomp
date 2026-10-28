@@ -24,65 +24,65 @@ static void add_general_options(recomp::config::Config &config) {
     using EnumOptionVector = const std::vector<recomp::config::ConfigOptionEnumOption>;
     # if 0
     static EnumOptionVector analog_cam_mode_options = {
-        {banjo::AnalogCamMode::Off, "Off", "Off"},
-        {banjo::AnalogCamMode::On, "On", "On"},
+        {blast::AnalogCamMode::Off, "Off", "Off"},
+        {blast::AnalogCamMode::On, "On", "On"},
     };
     config.add_enum_option(
-        banjo::configkeys::general::analog_cam_mode,
+        blast::configkeys::general::analog_cam_mode,
         "Analog Camera",
         "Enables the analog camera.",
         analog_cam_mode_options,
-        banjo::AnalogCamMode::Off
+        blast::AnalogCamMode::Off
     );
     config.add_number_option(
-        banjo::configkeys::general::analog_camera_sensitivity,
+        blast::configkeys::general::analog_camera_sensitivity,
         "Analog Camera Sensitivity",
         "Sets the sensitivity of the right stick analog camera, if enabled.",
         1, 10, 1, 0, false, 3
     );
     config.add_option_hidden_dependency(
-        banjo::configkeys::general::analog_camera_sensitivity,
-        banjo::configkeys::general::analog_cam_mode,
-        banjo::AnalogCamMode::Off
+        blast::configkeys::general::analog_camera_sensitivity,
+        blast::configkeys::general::analog_cam_mode,
+        blast::AnalogCamMode::Off
     );
     static EnumOptionVector camera_invert_mode_options = {
-        {banjo::CameraInvertMode::InvertNone, "InvertNone", "None"},
-        {banjo::CameraInvertMode::InvertX, "InvertX", "Invert X"},
-        {banjo::CameraInvertMode::InvertY, "InvertY", "Invert Y"},
-        {banjo::CameraInvertMode::InvertBoth, "InvertBoth", "Invert Both"}
+        {blast::CameraInvertMode::InvertNone, "InvertNone", "None"},
+        {blast::CameraInvertMode::InvertX, "InvertX", "Invert X"},
+        {blast::CameraInvertMode::InvertY, "InvertY", "Invert Y"},
+        {blast::CameraInvertMode::InvertBoth, "InvertBoth", "Invert Both"}
     };
     config.add_enum_option(
-        banjo::configkeys::general::third_person_camera_invert_mode,
+        blast::configkeys::general::third_person_camera_invert_mode,
         "Invert Camera",
         "Inverts the camera controls for the third person camera if it's enabled. <recomp-color primary>Invert X</recomp-color> is the default and matches the original game.<br /><br />If analog camera is off, only the <recomp-color primary>Invert X</recomp-color> setting will take effect.",
         camera_invert_mode_options,
-        banjo::CameraInvertMode::InvertX
+        blast::CameraInvertMode::InvertX
     );
     static EnumOptionVector first_person_invert_mode_options = {
-        {banjo::CameraInvertMode::InvertNone, "InvertNone", "None"},
-        {banjo::CameraInvertMode::InvertX, "InvertX", "Invert X"},
-        {banjo::CameraInvertMode::InvertY, "InvertY", "Invert Y"},
-        {banjo::CameraInvertMode::InvertBoth, "InvertBoth", "Invert Both"}
+        {blast::CameraInvertMode::InvertNone, "InvertNone", "None"},
+        {blast::CameraInvertMode::InvertX, "InvertX", "Invert X"},
+        {blast::CameraInvertMode::InvertY, "InvertY", "Invert Y"},
+        {blast::CameraInvertMode::InvertBoth, "InvertBoth", "Invert Both"}
     };
     config.add_enum_option(
-        banjo::configkeys::general::first_person_invert_mode,
+        blast::configkeys::general::first_person_invert_mode,
         "Invert First Person View",
         "Inverts the camera controls in first person view. <recomp-color primary>Invert Y</recomp-color> is the default and matches the original game.",
         first_person_invert_mode_options,
-        banjo::CameraInvertMode::InvertY
+        blast::CameraInvertMode::InvertY
     );
     static EnumOptionVector flying_and_swimming_invert_options = {
-        {banjo::CameraInvertMode::InvertNone, "InvertNone", "None"},
-        {banjo::CameraInvertMode::InvertX, "InvertX", "Invert X"},
-        {banjo::CameraInvertMode::InvertY, "InvertY", "Invert Y"},
-        {banjo::CameraInvertMode::InvertBoth, "InvertBoth", "Invert Both"}
+        {blast::CameraInvertMode::InvertNone, "InvertNone", "None"},
+        {blast::CameraInvertMode::InvertX, "InvertX", "Invert X"},
+        {blast::CameraInvertMode::InvertY, "InvertY", "Invert Y"},
+        {blast::CameraInvertMode::InvertBoth, "InvertBoth", "Invert Both"}
     };
     config.add_enum_option(
-        banjo::configkeys::general::flying_and_swimming_invert_mode,
+        blast::configkeys::general::flying_and_swimming_invert_mode,
         "Invert Flying & Swimming",
         "Inverts the controls for swimming and flying. <recomp-color primary>Invert Y</recomp-color> is the default and matches the original game.",
         flying_and_swimming_invert_options,
-        banjo::CameraInvertMode::InvertY
+        blast::CameraInvertMode::InvertY
     );
     #endif
 }
@@ -97,32 +97,32 @@ T get_general_config_number_value(const std::string& option_id) {
     return static_cast<T>(std::get<double>(recompui::config::get_general_config().get_option_value(option_id)));
 }
 
-banjo::NoteSavingMode banjo::get_note_saving_mode() {
-    return get_general_config_enum_value<banjo::NoteSavingMode>(banjo::configkeys::general::note_saving_mode);
+blast::NoteSavingMode blast::get_note_saving_mode() {
+    return get_general_config_enum_value<blast::NoteSavingMode>(blast::configkeys::general::note_saving_mode);
 }
 
-banjo::CameraInvertMode banjo::get_camera_invert_mode() {
-    return get_general_config_enum_value<banjo::CameraInvertMode>(banjo::configkeys::general::camera_invert_mode);
+blast::CameraInvertMode blast::get_camera_invert_mode() {
+    return get_general_config_enum_value<blast::CameraInvertMode>(blast::configkeys::general::camera_invert_mode);
 }
 
-banjo::CameraInvertMode banjo::get_third_person_camera_mode() {
-    return get_general_config_enum_value<banjo::CameraInvertMode>(banjo::configkeys::general::third_person_camera_invert_mode);
+blast::CameraInvertMode blast::get_third_person_camera_mode() {
+    return get_general_config_enum_value<blast::CameraInvertMode>(blast::configkeys::general::third_person_camera_invert_mode);
 }
 
-banjo::CameraInvertMode banjo::get_flying_and_swimming_invert_mode() {
-    return get_general_config_enum_value<banjo::CameraInvertMode>(banjo::configkeys::general::flying_and_swimming_invert_mode);
+blast::CameraInvertMode blast::get_flying_and_swimming_invert_mode() {
+    return get_general_config_enum_value<blast::CameraInvertMode>(blast::configkeys::general::flying_and_swimming_invert_mode);
 }
 
-banjo::CameraInvertMode banjo::get_first_person_invert_mode() {
-    return get_general_config_enum_value<banjo::CameraInvertMode>(banjo::configkeys::general::first_person_invert_mode);
+blast::CameraInvertMode blast::get_first_person_invert_mode() {
+    return get_general_config_enum_value<blast::CameraInvertMode>(blast::configkeys::general::first_person_invert_mode);
 }
 
-banjo::AnalogCamMode banjo::get_analog_cam_mode() {
-    return get_general_config_enum_value<banjo::AnalogCamMode>(banjo::configkeys::general::analog_cam_mode);
+blast::AnalogCamMode blast::get_analog_cam_mode() {
+    return get_general_config_enum_value<blast::AnalogCamMode>(blast::configkeys::general::analog_cam_mode);
 }
 
-uint32_t banjo::get_analog_cam_sensitivity() {
-    return get_general_config_number_value(banjo::configkeys::general::analog_camera_sensitivity);
+uint32_t blast::get_analog_cam_sensitivity() {
+    return get_general_config_number_value(blast::configkeys::general::analog_camera_sensitivity);
 }
 
 template <typename T = uint32_t>
@@ -132,13 +132,13 @@ T get_graphics_config_enum_value(const std::string& option_id) {
 
 static void add_sound_options(recomp::config::Config &config) {
     config.add_percent_number_option(
-        banjo::configkeys::sound::bgm_volume,
+        blast::configkeys::sound::bgm_volume,
         "Background Music Volume",
         "Controls the overall volume of background music.",
         100.0f
     );
     config.add_percent_number_option(
-        banjo::configkeys::sound::sfx_volume,
+        blast::configkeys::sound::sfx_volume,
         "Sound Effects Volume",
         "Controls the overall volume of sound effects.",
         100.0f
@@ -149,28 +149,28 @@ T get_sound_config_number_value(const std::string& option_id) {
     return static_cast<T>(std::get<double>(recompui::config::get_sound_config().get_option_value(option_id)));
 }
 
-int banjo::get_bgm_volume() {
-    return get_sound_config_number_value<int>(banjo::configkeys::sound::bgm_volume);
+int blast::get_bgm_volume() {
+    return get_sound_config_number_value<int>(blast::configkeys::sound::bgm_volume);
 }
 
-int banjo::get_sfx_volume() {
-    return get_sound_config_number_value<int>(banjo::configkeys::sound::sfx_volume);
+int blast::get_sfx_volume() {
+    return get_sound_config_number_value<int>(blast::configkeys::sound::sfx_volume);
 }
 
 static void add_graphics_options(recomp::config::Config &config) {
     using EnumOptionVector = const std::vector<recomp::config::ConfigOptionEnumOption>;
     #if 0
     static EnumOptionVector cutscene_aspect_ratio_mode_options = {
-        {banjo::CutsceneAspectRatioMode::Original, "Original", "Original"},
-        {banjo::CutsceneAspectRatioMode::Clamp16x9, "Clamp16x9", "16:9"},
-        {banjo::CutsceneAspectRatioMode::Full, "Expand", "Expand"},
+        {blast::CutsceneAspectRatioMode::Original, "Original", "Original"},
+        {blast::CutsceneAspectRatioMode::Clamp16x9, "Clamp16x9", "16:9"},
+        {blast::CutsceneAspectRatioMode::Full, "Expand", "Expand"},
     };
     config.add_enum_option(
-        banjo::configkeys::graphics::cutscene_aspect_ratio_mode,
+        blast::configkeys::graphics::cutscene_aspect_ratio_mode,
         "Cutscene Aspect Ratio",
         "Sets the aspect ratio limit for cutscenes. Cutscenes have been adjusted to work in <recomp-color primary>16:9</recomp-color>, which is the default option. Wider aspect ratios may show details that weren't meant to be on-screen.",
         cutscene_aspect_ratio_mode_options,
-        banjo::CutsceneAspectRatioMode::Clamp16x9
+        blast::CutsceneAspectRatioMode::Clamp16x9
     );
     #endif
 
@@ -249,11 +249,11 @@ static void set_control_descriptions() {
     // recompinput::set_game_input_description(recompinput::GameInput::DPAD_RIGHT, "Unused. Mods may use it for additional features.");
 }
 
-banjo::CutsceneAspectRatioMode banjo::get_cutscene_aspect_ratio_mode() {
-    return get_graphics_config_enum_value<banjo::CutsceneAspectRatioMode>(banjo::configkeys::graphics::cutscene_aspect_ratio_mode);
+blast::CutsceneAspectRatioMode blast::get_cutscene_aspect_ratio_mode() {
+    return get_graphics_config_enum_value<blast::CutsceneAspectRatioMode>(blast::configkeys::graphics::cutscene_aspect_ratio_mode);
 }
 
-void banjo::init_config() {
+void blast::init_config() {
     std::filesystem::path recomp_dir = recompui::file::get_app_folder_path();
 
     if (!recomp_dir.empty()) {

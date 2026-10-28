@@ -412,7 +412,7 @@ std::vector<recomp::GameEntry> supported_games = {
 };
 
 // TODO: move somewhere else
-namespace banjo {
+namespace blast {
     std::string get_game_thread_name(const OSThread* t) {
         std::string name = "[Game] ";
 
@@ -604,7 +604,7 @@ void on_launcher_init(recompui::LauncherMenu *menu) {
     game_options_menu->add_default_options();
 
     recompui::Element* menu_container = menu->get_menu_container();
-    banjo::launcher_animation_setup(menu);
+    blast::launcher_animation_setup(menu);
 }
 
 #define REGISTER_FUNC(name) recomp::overlays::register_base_export(#name, name)
@@ -683,8 +683,8 @@ int main(int argc, char** argv) {
     NFD_Init();
 
     // Initialize program settings.
-    recompui::programconfig::set_program_name(banjo::program_name);
-    recompui::programconfig::set_program_id(banjo::program_id);
+    recompui::programconfig::set_program_name(blast::program_name);
+    recompui::programconfig::set_program_id(blast::program_id);
     
     // Initialize SDL audio and set the output frequency.
     SDL_InitSubSystem(SDL_INIT_AUDIO);
@@ -728,15 +728,15 @@ int main(int argc, char** argv) {
     recomputil::register_data_api_exports();
     recomptheme::set_custom_theme();
 
-    banjo::register_bk_overlays();
-    banjo::register_bk_patches();
+    blast::register_bk_overlays();
+    blast::register_bk_patches();
 
     recompinput::players::set_single_player_mode(true);
 
-    banjo::init_config();
+    blast::init_config();
 
     recompui::register_launcher_init_callback(on_launcher_init);
-    recompui::register_launcher_update_callback(banjo::launcher_animation_update);
+    recompui::register_launcher_update_callback(blast::launcher_animation_update);
 
     recomp::rsp::callbacks_t rsp_callbacks{
         .get_rsp_microcode = get_rsp_microcode,
@@ -781,7 +781,7 @@ int main(int argc, char** argv) {
     };
 
     ultramodern::threads::callbacks_t threads_callbacks{
-        .get_game_thread_name = banjo::get_game_thread_name,
+        .get_game_thread_name = blast::get_game_thread_name,
     };
 
     // Register the texture pack content type with rt64.json as its content file.

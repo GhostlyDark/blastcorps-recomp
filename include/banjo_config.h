@@ -7,7 +7,7 @@
 
 #include "json/json.hpp"
 
-namespace banjo {
+namespace blast {
     inline const std::u8string program_id = u8"BlastCorpsRecompiled";
     inline const std::string program_name = "Blast Corps: Recompiled";
 
@@ -59,9 +59,9 @@ namespace banjo {
         OptionCount
     };
 
-    NLOHMANN_JSON_SERIALIZE_ENUM(banjo::AnalogCamMode, {
-        {banjo::AnalogCamMode::On, "On"},
-        {banjo::AnalogCamMode::Off, "Off"}
+    NLOHMANN_JSON_SERIALIZE_ENUM(blast::AnalogCamMode, {
+        {blast::AnalogCamMode::On, "On"},
+        {blast::AnalogCamMode::Off, "Off"}
     });
 
     AnalogCamMode get_analog_cam_mode();
@@ -76,12 +76,12 @@ namespace banjo {
         OptionCount
     };
 
-    NLOHMANN_JSON_SERIALIZE_ENUM(banjo::NoteSavingMode, {
+    NLOHMANN_JSON_SERIALIZE_ENUM(blast::NoteSavingMode, {
         // Keeping as "On" to preserve compatibility with previous configs before jinjo saving
-        {banjo::NoteSavingMode::Both,       "On"},
-        {banjo::NoteSavingMode::OnlyJinjos, "Jinjos"},
-        {banjo::NoteSavingMode::OnlyNotes,  "Notes"},
-        {banjo::NoteSavingMode::Off,        "Off"}
+        {blast::NoteSavingMode::Both,       "On"},
+        {blast::NoteSavingMode::OnlyJinjos, "Jinjos"},
+        {blast::NoteSavingMode::OnlyNotes,  "Notes"},
+        {blast::NoteSavingMode::Off,        "Off"}
     });
 
     NoteSavingMode get_note_saving_mode();

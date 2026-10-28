@@ -157,30 +157,30 @@ extern "C" void recomp_get_cutscene_aspect_ratio(uint8_t *rdram, recomp_context 
     int width, height;
     recompui::get_window_size(width, height);
 
-    switch (banjo::get_cutscene_aspect_ratio_mode()) {
-        case banjo::CutsceneAspectRatioMode::Original:
+    switch (blast::get_cutscene_aspect_ratio_mode()) {
+        case blast::CutsceneAspectRatioMode::Original:
             _return(ctx, original);
             return;
-        case banjo::CutsceneAspectRatioMode::Clamp16x9:
+        case blast::CutsceneAspectRatioMode::Clamp16x9:
         default:
             _return(ctx, 16.0f / 9.0f);
             return;
-        case banjo::CutsceneAspectRatioMode::Full:
+        case blast::CutsceneAspectRatioMode::Full:
             _return(ctx, std::max(static_cast<float>(width) / height, original));
             return;
     }
 }
 
 extern "C" void recomp_get_bgm_volume(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, banjo::get_bgm_volume() / 100.0f);
+    _return(ctx, blast::get_bgm_volume() / 100.0f);
 }
 
 extern "C" void recomp_get_sfx_volume(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, banjo::get_sfx_volume() / 100.0f);
+    _return(ctx, blast::get_sfx_volume() / 100.0f);
 }
 
 extern "C" void recomp_get_analog_cam_sensitivity(uint8_t* rdram, recomp_context* ctx) {
-    _return<uint32_t>(ctx, banjo::get_analog_cam_sensitivity());
+    _return<uint32_t>(ctx, blast::get_analog_cam_sensitivity());
 }
 
 
@@ -208,59 +208,59 @@ extern "C" void recomp_get_inverted_axes(uint8_t* rdram, recomp_context* ctx) {
     s32* x_out = _arg<0, s32*>(rdram, ctx);
     s32* y_out = _arg<1, s32*>(rdram, ctx);
 
-    banjo::CameraInvertMode mode = banjo::get_camera_invert_mode();
+    blast::CameraInvertMode mode = blast::get_camera_invert_mode();
 
-    *x_out = (mode == banjo::CameraInvertMode::InvertX || mode == banjo::CameraInvertMode::InvertBoth);
-    *y_out = (mode == banjo::CameraInvertMode::InvertY || mode == banjo::CameraInvertMode::InvertBoth);
+    *x_out = (mode == blast::CameraInvertMode::InvertX || mode == blast::CameraInvertMode::InvertBoth);
+    *y_out = (mode == blast::CameraInvertMode::InvertY || mode == blast::CameraInvertMode::InvertBoth);
 }
 
 extern "C" void recomp_get_analog_inverted_axes(uint8_t* rdram, recomp_context* ctx) {
     s32* x_out = _arg<0, s32*>(rdram, ctx);
     s32* y_out = _arg<1, s32*>(rdram, ctx);
 
-    banjo::CameraInvertMode mode = banjo::get_third_person_camera_mode();
+    blast::CameraInvertMode mode = blast::get_third_person_camera_mode();
 
-    *x_out = (mode == banjo::CameraInvertMode::InvertX || mode == banjo::CameraInvertMode::InvertBoth);
-    *y_out = (mode == banjo::CameraInvertMode::InvertY || mode == banjo::CameraInvertMode::InvertBoth);
+    *x_out = (mode == blast::CameraInvertMode::InvertX || mode == blast::CameraInvertMode::InvertBoth);
+    *y_out = (mode == blast::CameraInvertMode::InvertY || mode == blast::CameraInvertMode::InvertBoth);
 }
 
 extern "C" void recomp_get_flying_and_swimming_inverted_axes(uint8_t* rdram, recomp_context* ctx) {
     s32* x_out = _arg<0, s32*>(rdram, ctx);
     s32* y_out = _arg<1, s32*>(rdram, ctx);
 
-    banjo::CameraInvertMode mode = banjo::get_flying_and_swimming_invert_mode();
+    blast::CameraInvertMode mode = blast::get_flying_and_swimming_invert_mode();
 
-    *x_out = (mode == banjo::CameraInvertMode::InvertX || mode == banjo::CameraInvertMode::InvertBoth);
-    *y_out = (mode == banjo::CameraInvertMode::InvertY || mode == banjo::CameraInvertMode::InvertBoth);
+    *x_out = (mode == blast::CameraInvertMode::InvertX || mode == blast::CameraInvertMode::InvertBoth);
+    *y_out = (mode == blast::CameraInvertMode::InvertY || mode == blast::CameraInvertMode::InvertBoth);
 }
 
 extern "C" void recomp_get_first_person_inverted_axes(uint8_t* rdram, recomp_context* ctx) {
     s32* x_out = _arg<0, s32*>(rdram, ctx);
     s32* y_out = _arg<1, s32*>(rdram, ctx);
 
-    banjo::CameraInvertMode mode = banjo::get_first_person_invert_mode();
+    blast::CameraInvertMode mode = blast::get_first_person_invert_mode();
 
-    *x_out = (mode == banjo::CameraInvertMode::InvertX || mode == banjo::CameraInvertMode::InvertBoth);
-    *y_out = (mode == banjo::CameraInvertMode::InvertY || mode == banjo::CameraInvertMode::InvertBoth);
+    *x_out = (mode == blast::CameraInvertMode::InvertX || mode == blast::CameraInvertMode::InvertBoth);
+    *y_out = (mode == blast::CameraInvertMode::InvertY || mode == blast::CameraInvertMode::InvertBoth);
 }
 
 extern "C" void recomp_get_analog_cam_enabled(uint8_t* rdram, recomp_context* ctx) {
-    _return<s32>(ctx, banjo::get_analog_cam_mode() == banjo::AnalogCamMode::On);
+    _return<s32>(ctx, blast::get_analog_cam_mode() == blast::AnalogCamMode::On);
 }
 
 extern "C" void recomp_get_note_saving_enabled(uint8_t* rdram, recomp_context* ctx) {
     _return<s32>(
         ctx,
-        banjo::get_note_saving_mode() == banjo::NoteSavingMode::OnlyNotes ||
-        banjo::get_note_saving_mode() == banjo::NoteSavingMode::Both
+        blast::get_note_saving_mode() == blast::NoteSavingMode::OnlyNotes ||
+        blast::get_note_saving_mode() == blast::NoteSavingMode::Both
     );
 }
 
 extern "C" void recomp_get_jinjo_saving_enabled(uint8_t* rdram, recomp_context* ctx) {
     _return<s32>(
         ctx,
-        banjo::get_note_saving_mode() == banjo::NoteSavingMode::OnlyJinjos ||
-        banjo::get_note_saving_mode() == banjo::NoteSavingMode::Both
+        blast::get_note_saving_mode() == blast::NoteSavingMode::OnlyJinjos ||
+        blast::get_note_saving_mode() == blast::NoteSavingMode::Both
     );
 }
 
