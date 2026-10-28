@@ -152,25 +152,6 @@ extern "C" void recomp_get_target_aspect_ratio(uint8_t* rdram, recomp_context* c
     }
 }
 
-extern "C" void recomp_get_cutscene_aspect_ratio(uint8_t *rdram, recomp_context *ctx) {
-    float original = _arg<0, float>(rdram, ctx);
-    int width, height;
-    recompui::get_window_size(width, height);
-
-    switch (blast::get_cutscene_aspect_ratio_mode()) {
-        case blast::CutsceneAspectRatioMode::Original:
-            _return(ctx, original);
-            return;
-        case blast::CutsceneAspectRatioMode::Clamp16x9:
-        default:
-            _return(ctx, 16.0f / 9.0f);
-            return;
-        case blast::CutsceneAspectRatioMode::Full:
-            _return(ctx, std::max(static_cast<float>(width) / height, original));
-            return;
-    }
-}
-
 extern "C" void recomp_get_bgm_volume(uint8_t* rdram, recomp_context* ctx) {
     _return(ctx, blast::get_bgm_volume() / 100.0f);
 }
@@ -182,7 +163,6 @@ extern "C" void recomp_get_sfx_volume(uint8_t* rdram, recomp_context* ctx) {
 extern "C" void recomp_get_analog_cam_sensitivity(uint8_t* rdram, recomp_context* ctx) {
     _return<uint32_t>(ctx, blast::get_analog_cam_sensitivity());
 }
-
 
 extern "C" void recomp_time_us(uint8_t* rdram, recomp_context* ctx) {
     _return(ctx, static_cast<u32>(std::chrono::duration_cast<std::chrono::microseconds>(ultramodern::time_since_start()).count()));
@@ -224,44 +204,8 @@ extern "C" void recomp_get_analog_inverted_axes(uint8_t* rdram, recomp_context* 
     *y_out = (mode == blast::CameraInvertMode::InvertY || mode == blast::CameraInvertMode::InvertBoth);
 }
 
-extern "C" void recomp_get_flying_and_swimming_inverted_axes(uint8_t* rdram, recomp_context* ctx) {
-    s32* x_out = _arg<0, s32*>(rdram, ctx);
-    s32* y_out = _arg<1, s32*>(rdram, ctx);
-
-    blast::CameraInvertMode mode = blast::get_flying_and_swimming_invert_mode();
-
-    *x_out = (mode == blast::CameraInvertMode::InvertX || mode == blast::CameraInvertMode::InvertBoth);
-    *y_out = (mode == blast::CameraInvertMode::InvertY || mode == blast::CameraInvertMode::InvertBoth);
-}
-
-extern "C" void recomp_get_first_person_inverted_axes(uint8_t* rdram, recomp_context* ctx) {
-    s32* x_out = _arg<0, s32*>(rdram, ctx);
-    s32* y_out = _arg<1, s32*>(rdram, ctx);
-
-    blast::CameraInvertMode mode = blast::get_first_person_invert_mode();
-
-    *x_out = (mode == blast::CameraInvertMode::InvertX || mode == blast::CameraInvertMode::InvertBoth);
-    *y_out = (mode == blast::CameraInvertMode::InvertY || mode == blast::CameraInvertMode::InvertBoth);
-}
-
 extern "C" void recomp_get_analog_cam_enabled(uint8_t* rdram, recomp_context* ctx) {
     _return<s32>(ctx, blast::get_analog_cam_mode() == blast::AnalogCamMode::On);
-}
-
-extern "C" void recomp_get_note_saving_enabled(uint8_t* rdram, recomp_context* ctx) {
-    _return<s32>(
-        ctx,
-        blast::get_note_saving_mode() == blast::NoteSavingMode::OnlyNotes ||
-        blast::get_note_saving_mode() == blast::NoteSavingMode::Both
-    );
-}
-
-extern "C" void recomp_get_jinjo_saving_enabled(uint8_t* rdram, recomp_context* ctx) {
-    _return<s32>(
-        ctx,
-        blast::get_note_saving_mode() == blast::NoteSavingMode::OnlyJinjos ||
-        blast::get_note_saving_mode() == blast::NoteSavingMode::Both
-    );
 }
 
 extern "C" void recomp_get_right_analog_inputs(uint8_t* rdram, recomp_context* ctx) {
@@ -320,24 +264,6 @@ extern "C" void recomp_abort(uint8_t* rdram, recomp_context* ctx) {
     assert(false);
     ultramodern::error_handling::quick_exit(__FILE__, __LINE__, __FUNCTION__);
 }
-
-extern "C" void recomp_xxh3(uint8_t* rdram, recomp_context* ctx) {
-    PTR(void) data = _arg<0, PTR(void)>(rdram, ctx);
-    u32 size = _arg<1, u32>(rdram, ctx);
-    XXH3_state_t xxh3;
-    XXH3_64bits_reset(&xxh3);
-
-    // Hash 1 byte at a time to account for byteswapping.
-    for (size_t i = 0; i < size; i++) {
-        XXH3_64bits_update(&xxh3, TO_PTR(u8, data + i), 1);
-    }
-
-    uint64_t ret = XXH3_64bits_digest(&xxh3);
-    
-    ctx->r2 = (int32_t)(ret >> 32);
-    ctx->r3 = (int32_t)(ret >> 0);
-}
-
 extern "C" void recomp_start_rumble(uint8_t* rdram, recomp_context* ctx) {
     // do not start rumble when strength is too low
     if (recompui::config::general::get_rumble_strength() < 0.05) {

@@ -58,32 +58,6 @@ static void add_general_options(recomp::config::Config &config) {
         camera_invert_mode_options,
         blast::CameraInvertMode::InvertX
     );
-    static EnumOptionVector first_person_invert_mode_options = {
-        {blast::CameraInvertMode::InvertNone, "InvertNone", "None"},
-        {blast::CameraInvertMode::InvertX, "InvertX", "Invert X"},
-        {blast::CameraInvertMode::InvertY, "InvertY", "Invert Y"},
-        {blast::CameraInvertMode::InvertBoth, "InvertBoth", "Invert Both"}
-    };
-    config.add_enum_option(
-        blast::configkeys::general::first_person_invert_mode,
-        "Invert First Person View",
-        "Inverts the camera controls in first person view. <recomp-color primary>Invert Y</recomp-color> is the default and matches the original game.",
-        first_person_invert_mode_options,
-        blast::CameraInvertMode::InvertY
-    );
-    static EnumOptionVector flying_and_swimming_invert_options = {
-        {blast::CameraInvertMode::InvertNone, "InvertNone", "None"},
-        {blast::CameraInvertMode::InvertX, "InvertX", "Invert X"},
-        {blast::CameraInvertMode::InvertY, "InvertY", "Invert Y"},
-        {blast::CameraInvertMode::InvertBoth, "InvertBoth", "Invert Both"}
-    };
-    config.add_enum_option(
-        blast::configkeys::general::flying_and_swimming_invert_mode,
-        "Invert Flying & Swimming",
-        "Inverts the controls for swimming and flying. <recomp-color primary>Invert Y</recomp-color> is the default and matches the original game.",
-        flying_and_swimming_invert_options,
-        blast::CameraInvertMode::InvertY
-    );
     #endif
 }
 

@@ -26,7 +26,7 @@ osPiStartDma_recomp = 0x8F00007C;
 recomp_abort = 0x8F000080;
 recomp_get_target_aspect_ratio = 0x8F000084;
 osExQueueDisplaylistEvent_recomp = 0x8F000088;
-recomp_xxh3 = 0x8F00008C;
+
 recomp_get_bgm_volume = 0x8F000090;
 __sinf_recomp = 0x8F000094;
 __cosf_recomp = 0x8F000098;
@@ -36,12 +36,12 @@ recomp_get_analog_inverted_axes = 0x8F0000A4;
 recomp_set_right_analog_suppressed = 0x8F0000A8;
 osContGetReadData_recomp = 0x8F0000AC;
 bcopy_recomp = 0x8F0000B0;
-recomp_get_note_saving_enabled = 0x8F0000B4;
-recomp_get_flying_and_swimming_inverted_axes = 0x8F0000BC;
-recomp_get_first_person_inverted_axes = 0x8F0000C0;
+
+
+
 recomp_get_analog_cam_sensitivity = 0x8F0000C4;
 recomp_run_ui_callbacks = 0x8F0000C8;
-recomp_get_jinjo_saving_enabled = 0x8F0000CC;
+
 osViGetCurrentFramebuffer_recomp = 0x8F0000D0;
 recomp_set_multiplayer_max_two_players = 0x8F0000D4;
 recomp_set_multiplayer_max_four_players = 0x8F0000D8;
