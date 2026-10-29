@@ -8,6 +8,57 @@
 
 .section .recomp_patch, "ax"
 
+glabel LoadLevelMissileCarrier
+    /* 859B9C 802A303C 27BDFFF0 */  addiu      $sp, $sp, -0x10
+    /* 859BA0 802A3040 FFBF0000 */  sd         $ra, 0x0($sp)
+    /* 859BA4 802A3044 FFA80008 */  sd         $t0, 0x8($sp)
+    /* 859BA8 802A3048 8D090054 */  lw         $t1, 0x54($t0)
+    /* 859BAC 802A304C 01284820 */  add        $t1, $t1, $t0 /* handwritten instruction */
+    /* 859BB0 802A3050 91310000 */  lbu        $s1, 0x0($t1)
+    /* 859BB4 802A3054 1220001C */  beqz       $s1, .Lhd_code_802A30C8
+    /* 859BB8 802A3058 00000000 */   nop
+    /* 859BBC 802A305C 81210001 */  lb         $at, 0x1($t1)
+    /* 859BC0 802A3060 912C0002 */  lbu        $t4, 0x2($t1)
+    /* 859BC4 802A3064 912D0004 */  lbu        $t5, 0x4($t1)
+    /* 859BC8 802A3068 00010A00 */  sll        $at, $at, 8
+    /* 859BCC 802A306C 01816025 */  or         $t4, $t4, $at
+    /* 859BD0 802A3070 81210003 */  lb         $at, 0x3($t1)
+    /* 859BD4 802A3074 912E0006 */  lbu        $t6, 0x6($t1)
+    /* 859BD8 802A3078 912F0008 */  lbu        $t7, 0x8($t1)
+    /* 859BDC 802A307C 00010A00 */  sll        $at, $at, 8
+    /* 859BE0 802A3080 01A16825 */  or         $t5, $t5, $at
+    /* 859BE4 802A3084 81210005 */  lb         $at, 0x5($t1)
+    /* 859BE8 802A3088 000C6140 */  sll        $t4, $t4, 5
+    /* 859BEC 802A308C 000D6940 */  sll        $t5, $t5, 5
+    /* 859BF0 802A3090 00010A00 */  sll        $at, $at, 8
+    /* 859BF4 802A3094 01C17025 */  or         $t6, $t6, $at
+    /* 859BF8 802A3098 81210007 */  lb         $at, 0x7($t1)
+    /* 859BFC 802A309C 240B00FF */  addiu      $t3, $zero, 0xFF
+    /* 859C00 802A30A0 00010A00 */  sll        $at, $at, 8
+    /* 859C04 802A30A4 01E17825 */  or         $t7, $t7, $at
+    /* 859C08 802A30A8 0C0A8E5B */  jal        func_hd_code_802A396C
+    /* 859C0C 802A30AC 000F7940 */   sll       $t7, $t7, 5
+
+    save_all_regs
+    or $a0, $t3, $zero /* vehicle id */
+    jal patchVehicle
+    or $a1, $s2, $zero /* loaded vehicle data */
+    restore_all_regs
+
+    /* 859C10 802A30B0 0C0AE714 */  jal        func_hd_code_802B9C50
+    /* 859C14 802A30B4 00000000 */   nop
+    /* 859C18 802A30B8 3C098036 */  lui        $t1, %hi(D_hd_code_803643DB)
+    /* 859C1C 802A30BC 240A0001 */  addiu      $t2, $zero, 0x1
+    /* 859C20 802A30C0 252943DB */  addiu      $t1, $t1, %lo(D_hd_code_803643DB)
+    /* 859C24 802A30C4 A12A0000 */  sb         $t2, 0x0($t1)
+  .Lhd_code_802A30C8:
+    /* 859C28 802A30C8 DFBF0000 */  ld         $ra, 0x0($sp)
+    /* 859C2C 802A30CC DFA80008 */  ld         $t0, 0x8($sp)
+    /* 859C30 802A30D0 27BD0010 */  addiu      $sp, $sp, 0x10
+    /* 859C34 802A30D4 03E00008 */  jr         $ra
+    /* 859C38 802A30D8 00000000 */   nop
+endlabel LoadLevelMissileCarrier
+
 glabel LoadLevelVehicles
     /* 85A06C 802A350C 27BDFFF0 */  addiu      $sp, $sp, -0x10
     /* 85A070 802A3510 FFBF0000 */  sd         $ra, 0x0($sp)

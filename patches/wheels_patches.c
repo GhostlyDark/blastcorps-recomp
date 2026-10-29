@@ -5,6 +5,7 @@
 #define VEHICLE_ID_SKYFALL 3
 #define VEHICLE_ID_TRUCK 5
 #define VEHICLE_ID_BALLISTA 10
+#define VEHICLE_ID_MISSILE_CARRIER 0xFF
 
 /*
 Vehicle ids:
@@ -18,6 +19,7 @@ Vehicle ids:
 - Ballista: 10 (has wheel patch)
 - Police Car: 13
 - Cyclone Suit: 16
+- Missile Carrier: 0xFF (has wheel patch)
 
 Unknown:
 Starsky & Hutch Car
@@ -77,6 +79,12 @@ static const WheelDesc sBallistaWheels[] = {
     { 0x280, { { 0xC60, 52 }, { 0x1DE0, 52 } } }, // front wheel, joint matrix 0x580
 };
 
+static const WheelDesc sMissileCarrierWheels[] = {
+    { 0x000, { { 0x1270, 48 }, { 0x3210, 48 } } }, // front axle wheels, joint matrix 0x340
+    { 0x080, { { 0x1570, 52 }, { 0x3510, 52 } } }, // middle axle wheels, joint matrix 0x380
+    { 0x100, { { 0x18B0, 48 }, { 0x3850, 48 } } }, // rear axle wheels, joint matrix 0x3C0
+};
+
 static void recenterWheel(VehicleData* data, const WheelDesc* wheel) {
     VehicleMtxTable* mtxTable = (VehicleMtxTable*) ((u8*) data + data->mtxTableOffset);
     FixedMtx* mtx = &mtxTable->mtx[wheel->baseMtxOffset / sizeof(FixedMtx)];
@@ -115,7 +123,7 @@ static void recenterWheels(VehicleData* data, const WheelDesc* wheels, u32 count
     }
 }
 
-// called from LoadLevelVehicles after the vehicle data has been loaded
+// called from LoadLevelVehicles and LoadLevelMissileCarrier after the vehicle data has been loaded
 void patchVehicle(u32 vehicleId, VehicleData* data) {
     switch (vehicleId) {
         case VEHICLE_ID_SIDESWIPE:
@@ -129,6 +137,9 @@ void patchVehicle(u32 vehicleId, VehicleData* data) {
             break;
         case VEHICLE_ID_BALLISTA:
             recenterWheels(data, sBallistaWheels, sizeof(sBallistaWheels) / sizeof(sBallistaWheels[0]));
+            break;
+        case VEHICLE_ID_MISSILE_CARRIER:
+            recenterWheels(data, sMissileCarrierWheels, sizeof(sMissileCarrierWheels) / sizeof(sMissileCarrierWheels[0]));
             break;
         default:
             break;
