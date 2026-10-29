@@ -111,21 +111,12 @@ Gfx* hud_end(Gfx* entry) {
     return entry;
 }
 
-extern u8 D_hd_code_802E8BE4;
-
 // @recomp: Enable extended RT64 commands in hdGameFrame
 RECOMP_PATCH Gfx* func_hd_code_8024C414(struct FrameContext* arg0, s32* arg1) {
     Gfx* entry;
     u8 sp194[16];
     u8 sp184[16];
     s32 sp180;
-
-    // @recomp: enable rumble when shaky camera is active
-    if (D_hd_code_802E8BE4 > 5) {
-        recomp_start_rumble();
-    } else {
-        recomp_stop_rumble();
-    }
 
     // @recomp: use extended dl
     arg0->dp[0].words.w0 = (u32) 0xCAFEBABE;
